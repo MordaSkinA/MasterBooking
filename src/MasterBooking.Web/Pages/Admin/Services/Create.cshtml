@@ -1,0 +1,38 @@
+@page
+@model MasterBooking.Web.Pages.Admin.Services.CreateModel
+@{
+    ViewData["Title"] = "Добавить услугу";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="Input.Name" class="form-label"></label>
+                <input asp-for="Input.Name" class="form-control" />
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Price" class="form-label"></label>
+                <input asp-for="Input.Price" class="form-control" />
+                <span asp-validation-for="Input.Price" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Duration" class="form-label"></label>
+                <input asp-for="Input.Duration" class="form-control" />
+                <span asp-validation-for="Input.Duration" class="text-danger"></span>
+            </div>
+            <div class="mb-3 form-check">
+                <input asp-for="Input.IsActive" class="form-check-input" />
+                <label asp-for="Input.IsActive" class="form-check-label"></label>
+            </div>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a asp-page="Index" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

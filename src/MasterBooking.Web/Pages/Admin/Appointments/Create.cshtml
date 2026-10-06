@@ -1,0 +1,63 @@
+@page
+@model MasterBooking.Web.Pages.Admin.Appointments.CreateModel
+@{
+    ViewData["Title"] = "Создать запись";
+}
+
+<h1>Создать запись</h1>
+
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState.Count > 0)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<form method="post">
+    <div class="form-group mb-3">
+        <label asp-for="Input.ClientId" class="control-label">Клиент</label>
+        <select asp-for="Input.ClientId" class="form-control" asp-items="Model.Clients">
+            <option value="">-- Выберите клиента --</option>
+        </select>
+        <span asp-validation-for="Input.ClientId" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="Input.ServiceId" class="control-label">Услуга</label>
+        <select asp-for="Input.ServiceId" class="form-control" asp-items="Model.Services">
+            <option value="">-- Выберите услугу --</option>
+        </select>
+        <span asp-validation-for="Input.ServiceId" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="Input.StartDateTime" class="control-label">Дата и время начала</label>
+        <input asp-for="Input.StartDateTime" class="form-control" type="datetime-local" />
+        <span asp-validation-for="Input.StartDateTime" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="Input.FinalPrice" class="control-label">Цена</label>
+        <input asp-for="Input.FinalPrice" class="form-control" />
+        <span asp-validation-for="Input.FinalPrice" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="Input.Status" class="control-label">Статус</label>
+        <select asp-for="Input.Status" class="form-control">
+            <option value="Planned">Запланировано</option>
+            <option value="Done">Выполнено</option>
+            <option value="Cancelled">Отменено</option>
+        </select>
+        <span asp-validation-for="Input.Status" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Создать" class="btn btn-primary" />
+        <a asp-page="./Index" class="btn btn-secondary">Назад</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

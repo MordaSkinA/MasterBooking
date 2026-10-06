@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MasterBooking.Domain/MasterBooking.Domain.csproj" />
+    <Project Path="src/MasterBooking.Infrastructure/MasterBooking.Infrastructure.csproj" />
+    <Project Path="src/MasterBooking.Web/MasterBooking.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MasterBooking.Domain.Tests/MasterBooking.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

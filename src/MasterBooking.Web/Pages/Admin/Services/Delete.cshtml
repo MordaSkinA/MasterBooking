@@ -1,0 +1,20 @@
+@page
+@model MasterBooking.Web.Pages.Admin.Services.DeleteModel
+@{
+    ViewData["Title"] = "Удалить услугу";
+}
+
+<h3>Вы уверены, что хотите удалить эту услугу?</h3>
+<div>
+    <p>
+        <strong>Название:</strong> @Model.Service.Name
+    </p>
+    <p>
+        <strong>Цена:</strong> @Model.Service.Price.ToString("C")
+    </p>
+    <form method="post">
+        <input type="hidden" asp-for="Service.Id" />
+        <button type="submit" class="btn btn-danger">Удалить</button>
+        <a asp-page="./Index" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>

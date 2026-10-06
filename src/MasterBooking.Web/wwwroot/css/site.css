@@ -1,0 +1,18 @@
+/* Базовые стили */
+html {
+    font-size: 14px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
