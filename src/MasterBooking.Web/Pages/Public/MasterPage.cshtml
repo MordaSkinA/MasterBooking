@@ -1,0 +1,229 @@
+@page "/m/{slug}"
+@model MasterBooking.Web.Pages.Public.MasterPageModel
+@{
+    ViewData["Title"] = Model.Master.DisplayName;
+    var primaryColor = Model.Settings?.PrimaryColor ?? "#007bff";
+    var coverImage = Model.Settings?.CoverImage;
+    var aboutMe = Model.Settings?.AboutMe;
+    var phoneNumber = Model.Settings?.PhoneNumber;
+    var socialLinks = Model.Settings?.SocialLinks;
+}
+
+<style>
+    :root {
+        --primary-color: @primaryColor;
+    }
+
+    body {
+        background-color: #faf9f5;
+        color: #333;
+    }
+
+    .hero {
+        position: relative;
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .btn-primary:hover, .btn-primary:focus {
+        background-color: var(--primary-color);
+        filter: brightness(90%);
+        border-color: var(--primary-color);
+    }
+
+    .section-title {
+        color: var(--primary-color);
+        margin-bottom: 2rem;
+        font-weight: 700;
+    }
+
+    .card-service {
+        transition: transform 0.2s;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .card-service:hover {
+        transform: translateY(-5px);
+    }
+
+    .gallery-img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 8px;
+        transition: transform 0.3s;
+        cursor: pointer;
+    }
+
+    .gallery-img:hover {
+        transform: scale(1.03);
+    }
+
+    #calendar {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+</style>
+
+<div class="container-fluid p-0">
+    @if (!string.IsNullOrEmpty(coverImage))
+    {
+        <header class="hero" style="background-image: url('@coverImage');">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1 class="display-3 fw-bold">@Model.Master.DisplayName</h1>
+                @if (!string.IsNullOrEmpty(aboutMe))
+                {
+                    <p class="fs-4">@aboutMe</p>
+                }
+            </div>
+        </header>
+    }
+    else
+    {
+        <header class="bg-dark text-white py-5 text-center">
+            <h1 class="display-3 fw-bold">@Model.Master.DisplayName</h1>
+            @if (!string.IsNullOrEmpty(aboutMe))
+            {
+                <p class="fs-4">@aboutMe</p>
+            }
+        </header>
+    }
+</div>
+
+<div class="container mt-5">
+    @if (Model.Services.Any())
+    {
+        <section id="services" class="mb-5">
+            <h2 class="text-center section-title">Услуги</h2>
+            <div class="row">
+                @foreach (var service in Model.Services)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 card-service">
+                            <div class="card-body text-center">
+                                <h5 class="card-title fw-bold">@service.Name</h5>
+                                <p class="card-text fs-5 text-muted">@service.Price.ToString("C")</p>
+                                <p class="badge rounded-pill text-bg-light">@service.Duration мин.</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    @if (Model.Gallery.Any())
+    {
+        <section id="gallery" class="mb-5">
+            <h2 class="text-center section-title">Галерея</h2>
+            <div class="row g-3">
+                @foreach (var image in Model.Gallery)
+                {
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <img src="@image.ImagePath" class="gallery-img" alt="Gallery Image" />
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    <section id="booking" class="mb-5">
+        <h2 class="text-center section-title">Записаться</h2>
+        <div id="calendar"></div>
+    </section>
+
+    @if (!string.IsNullOrEmpty(phoneNumber) || !string.IsNullOrEmpty(socialLinks))
+    {
+        <footer class="text-center py-5 border-top mt-5">
+            <div class="mb-3">
+                @if (!string.IsNullOrEmpty(phoneNumber))
+                {
+                    <p class="fs-5">📞 @phoneNumber</p>
+                }
+            </div>
+            @if (!string.IsNullOrEmpty(socialLinks))
+            {
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="@socialLinks" target="_blank" class="btn btn-outline-dark btn-sm">Связаться со мной</a>
+                </div>
+            }
+            <p class="text-muted mt-4 small">© @DateTime.Now.Year @Model.Master.DisplayName</p>
+        </footer>
+    }
+</div>
+
+@section Scripts {
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slug = '@Model.Master.Slug';
+            const calendarEl = document.getElementById('calendar');
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                locale: 'ru',
+                slotMinTime: '08:00:00',
+                slotMaxTime: '22:00:00',
+                allDaySlot: false,
+                height: 'auto',
+                events: function(info, successCallback, failureCallback) {
+                    fetch(`/m/${slug}?handler=BusyIntervals`)
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.json();
+                        })
+                        .then(data => {
+                            successCallback(data);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching busy intervals:', error);
+                            failureCallback(error);
+                        });
+                },
+                eventClassNames: function(arg) {
+                    return ['bg-danger-subtle', 'text-danger-emphasis'];
+                },
+                eventContent: function(arg) {
+                    return { html: '<div class="fw-bold">Занято</div>' };
+                }
+            });
+
+            calendar.render();
+        });
+    </script>
+}

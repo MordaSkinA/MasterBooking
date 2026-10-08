@@ -1,0 +1,78 @@
+@page "/admin/finance"
+@model MasterBooking.Web.Pages.Admin.Finance.IndexModel
+@{
+    ViewData["Title"] = "Финансы";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Финансы</h1>
+
+    <form method="post" class="row g-3 align-items-end mb-5 bg-light p-3 rounded border">
+        <div class="col-md-4">
+            <label for="StartDate" class="form-label">С даты</label>
+            <input type="date" asp-for="Input.StartDate" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label for="EndDate" class="form-label">По дату</label>
+            <input type="date" asp-for="Input.EndDate" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary w-100">Показать</button>
+        </div>
+    </form>
+
+    @if (Model.Statistics != null)
+    {
+        <div class="row mb-5">
+            <div class most-important class="col-md-6">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Общий доход</h5>
+                        <p class="card-text fs-2 fw-bold">@Model.Statistics.TotalIncome.ToString("C")</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card text-white bg-info mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Средний чек</h5>
+                        <p class="card-text fs-2 fw-bold">@Model.Statistics.AverageCheck.ToString("C")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold">Доход по услугам</div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Услуга</th>
+                            <th class="text-end">Доход</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Statistics.IncomeByService.OrderByDescending(x => x.Value))
+                        {
+                            <tr>
+                                <td>@item.Key</td>
+                                <td class="text-end">@item.Value.ToString("C")</td>
+                            </tr>
+                        }
+                        @if (!Model.Statistics.IncomeByService.Any())
+                        {
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">Нет данных за выбранный период</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Выберите период для отображения статистики.</div>
+    }
+</div>

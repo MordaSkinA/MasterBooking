@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MasterBooking.Domain.Entities;
 using MasterBooking.Domain.Interfaces;
 using MasterBooking.Domain.Exceptions;
 using MasterBooking.Infrastructure.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace MasterBooking.Web.Pages.Admin.Appointments
 {
@@ -41,8 +43,8 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
             public string Status { get; set; } = "Planned";
         }
 
-        public SelectList Clients { get; set; } = new();
-        public SelectList Services { get; set; } = new();
+        public SelectList? Clients { get; set; }
+        public SelectList? Services { get; set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -70,12 +72,11 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
                 ClientId = Input.ClientId,
                 ServiceId = Input.ServiceId,
                 StartDateTime = Input.StartDateTime,
-                EndDateTime = Input.StartDateTime.AddMinutes(30), // Placeholder, should ideally be based on service duration
+                EndDateTime = Input.StartDateTime.AddMinutes(30),
                 Status = Input.Status,
                 FinalPrice = Input.FinalPrice
             };
 
-            // We should ideally use the service's duration if available.
             var service = await _context.Services.FindAsync(Input.ServiceId);
             if (service != null)
             {

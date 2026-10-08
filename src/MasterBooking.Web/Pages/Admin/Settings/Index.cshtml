@@ -1,0 +1,88 @@
+@page
+@model MasterBooking.Web.Pages.Admin.Settings.IndexModel
+@{
+    ViewData["Title"] = "Настройки сайта";
+}
+
+<h1 class="mb-4">Настройки внешнего вида</h1>
+
+<form method="post" enctype="multipart/form-data">
+    <div class="card mb-4">
+        <div class="card-header">Общая информация</div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="Settings.AboutMe" class="form-label">О себе</label>
+                <textarea asp-for="Settings.AboutMe" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Settings.AboutMe" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Settings.PhoneNumber" class="form-label">Телефон</label>
+                <input asp-for="Settings.PhoneNumber" class="form-control" />
+                <span asp-validation-for="Settings.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Settings.SocialLinks" class="form-label">Ссылки на соцсети (через запятую)</label>
+                <input asp-for="Settings.SocialLinks" class="form-control" />
+                <span asp-validation-for="Settings.SocialLinks" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">Визуальное оформление</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Settings.Theme" class="form-label">Тема</label>
+                    <select asp-for="Settings.Theme" class="form-select">
+                        <option value="Light">Светлая</option>
+                        <option value="Dark">Темная</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Settings.PrimaryColor" class="form-label">Основной цвет (Hex)</label>
+                    <input asp-for="Settings.PrimaryColor" class="form-control" placeholder="#000000" />
+                    <span asp-validation-for="Settings.PrimaryColor" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Обложка (Cover Image)</label>
+                <input type="file" name="CoverImageFile" class="form-control" accept="image/*" />
+                @if (!string.IsNullOrEmpty(Model.Settings.CoverImage))
+                {
+                    <div class="mt-2">
+                        <small class="text-muted">Текущая: </small>
+                        <img src="@Model.Settings.CoverImage" style="height: 50px;" class="img-thumbnail" />
+                    </div>
+                }
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Логотип (Logo)</label>
+                <input type="file" name="LogoFile" class="form-control" accept="image/*" />
+                @if (!string.IsNullOrEmpty(Model.Settings.Logo))
+                {
+                    <div class="mt-2">
+                        <small class="text-muted">Текущий: </small>
+                        <img src="@Model.Settings.Logo" style="height: 50px;" class="img-thumbnail" />
+                    </div>
+                }
+            </div>
+
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" asp-for="Settings.ShowCalendar" id="flexSwitchCheckDefault">
+                <label class="form-check-label" for="flexSwitchCheckDefault">Показывать календарь</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a asp-page="./Index" class="btn btn-secondary">Назад</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

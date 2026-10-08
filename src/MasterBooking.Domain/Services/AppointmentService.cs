@@ -42,15 +42,13 @@ namespace MasterBooking.Domain.Services
         {
             var workingHours = await _repository.GetWorkingHoursAsync(masterId);
 
-            // For now, we only support appointments within a single day.
-            // This is a reasonable assumption for a beauty salon.
             if (appointment.StartDateTime.Date != appointment.EndDateTime.Date)
             {
                 throw new AppointmentValidationException("Запись не может длиться более одного дня.");
             }
 
-            var dayOfWeek = (int)appointment.StartDateTime.DayOfWeek;
-            var hoursForDay = workingHours.Where(w => (int)w.DayOfWeek == dayOfWeek).ToList();
+            var dayOfWeek = appointment.StartDateTime.DayOfWeek;
+            var hoursForDay = workingHours.Where(w => w.DayOfWeek == dayOfWeek).ToList();
 
             if (!hoursForDay.Any())
             {
@@ -60,9 +58,24 @@ namespace MasterBooking.Domain.Services
             var start = appointment.StartDateTime.TimeOfDay;
             var end = appointment.EndDateTime.TimeOfDay;
 
-            if (!hoursForDay.Any(h => h.StartTime <= start && h.EndTime >= end))
+            var overlappingBlocks = hoursForDay
+                .Where(h => h.StartTime < end && h.EndTime > start)
+                .OrderBy(h => h.StartTime)
+                .ToList();
+
+            if (!overlappingBlocks.Any() ||
+                overlappingBlocks.First().StartTime > start ||
+                overlappingBlocks.Last().EndTime < end)
             {
                 throw new AppointmentValidationException("Время записи не входит в рабочие часы.");
+            }
+
+            for (var i = 0; i < overlappingBlocks.Count - 1; i++)
+            {
+                if (overlappingBlocks[i].EndTime < overlappingBlocks[i + 1].StartTime)
+                {
+                    throw new AppointmentValidationException("Время записи не входит в рабочие часы (перерыв в рабочем времени).");
+                }
             }
         }
 

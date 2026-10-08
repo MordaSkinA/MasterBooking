@@ -40,13 +40,11 @@ namespace MasterBooking.Domain.Tests.Integration
         [Fact]
         public async Task Services_AreFilteredByMasterId()
         {
-            // Arrange
             var master1Id = 1;
             var master2Id = 2;
             var userId1 = "user-1";
             var userId2 = "user-2";
 
-            // We need to add masters to the DB first
             using (var context = CreateContext())
             {
                 context.Database.EnsureCreated();
@@ -64,12 +62,10 @@ namespace MasterBooking.Domain.Tests.Integration
                 await context.SaveChangesAsync();
             }
 
-            // Act: Set master provider to return master1
             _masterProviderMock.Setup(m => m.GetMasterId()).Returns(master1Id);
 
             using (var context = CreateContext())
             {
-                // Assert: Only master 1's services should be returned
                 var services = await context.Services.ToListAsync();
                 Assert.Single(services);
                 Assert.Equal(master1Id, services[0].MasterId);
@@ -80,7 +76,6 @@ namespace MasterBooking.Domain.Tests.Integration
         [Fact]
         public async Task Clients_AreFilteredByMasterId()
         {
-            // Arrange
             var master1Id = 1;
             var master2Id = 2;
             var userId1 = "user-1";
@@ -103,12 +98,10 @@ namespace MasterBooking.Domain.Tests.Integration
                 await context.SaveChangesAsync();
             }
 
-            // Act: Set master provider to return master1
             _masterProviderMock.Setup(m => m.GetMasterId()).Returns(master1Id);
 
             using (var context = CreateContext())
             {
-                // Assert: Only master 1's clients should be returned
                 var clients = await context.Clients.ToListAsync();
                 Assert.Single(clients);
                 Assert.Equal(master1Id, clients[0].MasterId);

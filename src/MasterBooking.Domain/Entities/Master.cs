@@ -16,5 +16,7 @@ namespace MasterBooking.Domain.Entities
 
         [Required]
         public string UserId { get; set; } = string.Empty;
+
+        public SiteSettings? SiteSettings { get; set; }
     }
 }

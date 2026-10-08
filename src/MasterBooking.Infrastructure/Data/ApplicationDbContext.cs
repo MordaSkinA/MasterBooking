@@ -42,8 +42,8 @@ namespace MasterBooking.Infrastructure.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.HasOne(e => e.Master)
-                    .WithMany()
-                    .HasForeignKey(e => e.MasterId)
+                    .WithOne(m => m.SiteSettings)
+                    .HasForeignKey<SiteSettings>(e => e.MasterId)
                     .OnDelete(DeleteBehavior.Cascade);
                 entity.Property(e => e.Theme).HasMaxLength(50);
                 entity.Property(e => e.PrimaryColor).HasMaxLength(20);

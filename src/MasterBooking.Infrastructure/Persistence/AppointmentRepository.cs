@@ -34,5 +34,16 @@ namespace MasterBooking.Infrastructure.Persistence
                 .Where(d => d.MasterId == masterId)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Appointment>> GetCompletedAppointmentsAsync(int masterId, DateTime start, DateTime end)
+        {
+            return await _context.Appointments
+                .Include(a => a.Service)
+                .Where(a => a.MasterId == masterId &&
+                            a.Status == "Done" &&
+                            a.StartDateTime >= start &&
+                            a.StartDateTime <= end)
+                .ToListAsync();
+        }
     }
 }

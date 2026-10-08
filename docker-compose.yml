@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: masterbooking_db
+    environment:
+      POSTGRES_DB: masterbooking_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: masterbooking_web
+    ports:
+      - "8080:80"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=masterbooking_db;Username=postgres;Password=postgres_password
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

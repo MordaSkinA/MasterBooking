@@ -53,7 +53,7 @@ namespace MasterBooking.Domain.Tests.Services
         {
             var appointment = new Appointment
             {
-                StartDateTime = new DateTime(2023, 10, 10, 22, 0, 0), // 10 PM
+                StartDateTime = new DateTime(2023, 10, 10, 22, 0, 0),
                 EndDateTime = new DateTime(2023, 10, 10, 23, 0, 0)
             };
 
@@ -63,10 +63,9 @@ namespace MasterBooking.Domain.Tests.Services
             _repositoryMock.Setup(r => r.GetWorkingHoursAsync(_masterId))
                 .ReturnsAsync(new List<WorkingHours>
                 {
-                    new WorkingHours { DayOfWeek = (int)DayOfWeek.Tuesday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) }
+                    new WorkingHours { DayOfWeek = DayOfWeek.Tuesday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) }
                 });
 
-            // 2023-10-10 is a Tuesday
             await Assert.ThrowsAsync<AppointmentValidationException>(() =>
                 _service.ValidateAppointmentAsync(appointment, _masterId));
         }
@@ -92,7 +91,7 @@ namespace MasterBooking.Domain.Tests.Services
             _repositoryMock.Setup(r => r.GetWorkingHoursAsync(_masterId))
                 .ReturnsAsync(new List<WorkingHours>
                 {
-                    new WorkingHours { DayOfWeek = (int)DayOfWeek.Tuesday, StartTime = new TimeSpan(8, 0, 0), EndTime = new TimeSpan(20, 0, 0) }
+                    new WorkingHours { DayOfWeek = DayOfWeek.Tuesday, StartTime = new TimeSpan(8, 0, 0), EndTime = new TimeSpan(20, 0, 0) }
                 });
             _repositoryMock.Setup(r => r.GetAppointmentsAsync(_masterId, It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .ReturnsAsync(new List<Appointment> { existing });
@@ -115,7 +114,7 @@ namespace MasterBooking.Domain.Tests.Services
             _repositoryMock.Setup(r => r.GetWorkingHoursAsync(_masterId))
                 .ReturnsAsync(new List<WorkingHours>
                 {
-                    new WorkingHours { DayOfWeek = (int)DayOfWeek.Tuesday, StartTime = new TimeSpan(8, 0, 0), EndTime = new TimeSpan(20, 0, 0) }
+                    new WorkingHours { DayOfWeek = DayOfWeek.Tuesday, StartTime = new TimeSpan(8, 0, 0), EndTime = new TimeSpan(20, 0, 0) }
                 });
             _repositoryMock.Setup(r => r.GetAppointmentsAsync(_masterId, It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .ReturnsAsync(new List<Appointment>());

@@ -8,7 +8,7 @@ namespace MasterBooking.Domain.Entities
 
         public int MasterId { get; set; }
 
-        public Master Master { get; set; }
+        public Master Master { get; set; } = null!;
 
         [StringLength(50)]
         public string Theme { get; set; } = string.Empty;

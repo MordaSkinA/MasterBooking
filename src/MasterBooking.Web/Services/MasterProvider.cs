@@ -20,7 +20,7 @@ namespace MasterBooking.Web.Services
         public int? GetMasterId()
         {
             var user = _httpContextAccessor.HttpContext?.User;
-            if (user == null || !user.Identity!.IsAuthenticated)
+            if (user?.Identity == null || !user.Identity.IsAuthenticated)
             {
                 return null;
             }
@@ -31,7 +31,6 @@ namespace MasterBooking.Web.Services
                 return null;
             }
 
-            // Use a scope to resolve ApplicationDbContext
             using var scope = _serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 

@@ -8,7 +8,7 @@ namespace MasterBooking.Domain.Entities
 
         public int MasterId { get; set; }
 
-        public Master Master { get; set; }
+        public Master Master { get; set; } = null!;
 
         public int? ClientId { get; set; }
 
@@ -16,13 +16,13 @@ namespace MasterBooking.Domain.Entities
 
         public int ServiceId { get; set; }
 
-        public Service Service { get; set; }
+        public Service Service { get; set; } = null!;
 
         public DateTime StartDateTime { get; set; }
 
         public DateTime EndDateTime { get; set; }
 
-        public string Status { get; set; } = "Planned"; 
+        public string Status { get; set; } = "Planned";
 
         public decimal FinalPrice { get; set; }
     }
