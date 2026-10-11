@@ -11,7 +11,6 @@ namespace MasterBooking.Domain.Tests.Services
     {
         private readonly Mock<IAppointmentRepository> _repositoryMock;
         private readonly AppointmentService _service;
-        private readonly int _masterId = 1;
 
         public AppointmentServiceTests()
         {
@@ -29,7 +28,7 @@ namespace MasterBooking.Domain.Tests.Services
             };
 
             await Assert.ThrowsAsync<AppointmentValidationException>(() =>
-                _service.ValidateAppointmentAsync(appointment, _masterId));
+                _service.ValidateAppointmentAsync(appointment));
         }
 
         [Fact]
@@ -41,11 +40,11 @@ namespace MasterBooking.Domain.Tests.Services
                 EndDateTime = new DateTime(2023, 10, 10, 11, 0, 0)
             };
 
-            _repositoryMock.Setup(r => r.GetDayOffsAsync(_masterId))
+            _repositoryMock.Setup(r => r.GetDayOffsAsync())
                 .ReturnsAsync(new List<DayOff> { new DayOff { Date = new DateTime(2023, 10, 10) } });
 
             await Assert.ThrowsAsync<AppointmentValidationException>(() =>
-                _service.ValidateAppointmentAsync(appointment, _masterId));
+                _service.ValidateAppointmentAsync(appointment));
         }
 
         [Fact]
@@ -57,17 +56,17 @@ namespace MasterBooking.Domain.Tests.Services
                 EndDateTime = new DateTime(2023, 10, 10, 23, 0, 0)
             };
 
-            _repositoryMock.Setup(r => r.GetDayOffsAsync(_masterId))
+            _repositoryMock.Setup(r => r.GetDayOffsAsync())
                 .ReturnsAsync(new List<DayOff>());
 
-            _repositoryMock.Setup(r => r.GetWorkingHoursAsync(_masterId))
+            _repositoryMock.Setup(r => r.GetWorkingHoursAsync())
                 .ReturnsAsync(new List<WorkingHours>
                 {
                     new WorkingHours { DayOfWeek = DayOfWeek.Tuesday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) }
                 });
 
             await Assert.ThrowsAsync<AppointmentValidationException>(() =>
-                _service.ValidateAppointmentAsync(appointment, _masterId));
+                _service.ValidateAppointmentAsync(appointment));
         }
 
         [Fact]
@@ -87,17 +86,17 @@ namespace MasterBooking.Domain.Tests.Services
                 EndDateTime = new DateTime(2023, 10, 10, 11, 30, 0)
             };
 
-            _repositoryMock.Setup(r => r.GetDayOffsAsync(_masterId)).ReturnsAsync(new List<DayOff>());
-            _repositoryMock.Setup(r => r.GetWorkingHoursAsync(_masterId))
+            _repositoryMock.Setup(r => r.GetDayOffsAsync()).ReturnsAsync(new List<DayOff>());
+            _repositoryMock.Setup(r => r.GetWorkingHoursAsync())
                 .ReturnsAsync(new List<WorkingHours>
                 {
                     new WorkingHours { DayOfWeek = DayOfWeek.Tuesday, StartTime = new TimeSpan(8, 0, 0), EndTime = new TimeSpan(20, 0, 0) }
                 });
-            _repositoryMock.Setup(r => r.GetAppointmentsAsync(_masterId, It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            _repositoryMock.Setup(r => r.GetAppointmentsAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .ReturnsAsync(new List<Appointment> { existing });
 
             await Assert.ThrowsAsync<AppointmentValidationException>(() =>
-                _service.ValidateAppointmentAsync(appointment, _masterId));
+                _service.ValidateAppointmentAsync(appointment));
         }
 
         [Fact]
@@ -110,16 +109,16 @@ namespace MasterBooking.Domain.Tests.Services
                 EndDateTime = new DateTime(2023, 10, 10, 11, 0, 0)
             };
 
-            _repositoryMock.Setup(r => r.GetDayOffsAsync(_masterId)).ReturnsAsync(new List<DayOff>());
-            _repositoryMock.Setup(r => r.GetWorkingHoursAsync(_masterId))
+            _repositoryMock.Setup(r => r.GetDayOffsAsync()).ReturnsAsync(new List<DayOff>());
+            _repositoryMock.Setup(r => r.GetWorkingHoursAsync())
                 .ReturnsAsync(new List<WorkingHours>
                 {
                     new WorkingHours { DayOfWeek = DayOfWeek.Tuesday, StartTime = new TimeSpan(8, 0, 0), EndTime = new TimeSpan(20, 0, 0) }
                 });
-            _repositoryMock.Setup(r => r.GetAppointmentsAsync(_masterId, It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            _repositoryMock.Setup(r => r.GetAppointmentsAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .ReturnsAsync(new List<Appointment>());
 
-            await _service.ValidateAppointmentAsync(appointment, _masterId);
+            await _service.ValidateAppointmentAsync(appointment);
         }
     }
 }

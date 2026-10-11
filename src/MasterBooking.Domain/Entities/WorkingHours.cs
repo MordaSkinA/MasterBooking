@@ -6,10 +6,6 @@ namespace MasterBooking.Domain.Entities
     {
         public int Id { get; set; }
 
-        public int MasterId { get; set; }
-
-        public Master Master { get; set; } = null!;
-
         public DayOfWeek DayOfWeek { get; set; }
 
         public TimeSpan StartTime { get; set; }

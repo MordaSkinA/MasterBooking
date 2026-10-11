@@ -1,35 +1,45 @@
 @page
 @model MasterBooking.Web.Pages.Admin.Services.CreateModel
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Добавить услугу";
 }
 
 <div class="row">
     <div class="col-md-6">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-3">
-                <label asp-for="Input.Name" class="form-label"></label>
-                <input asp-for="Input.Name" class="form-control" />
-                <span asp-validation-for="Input.Name" class="text-danger"></span>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Новая услуга</h5>
             </div>
-            <div class="mb-3">
-                <label asp-for="Input.Price" class="form-label"></label>
-                <input asp-for="Input.Price" class="form-control" />
-                <span asp-validation-for="Input.Price" class="text-danger"></span>
+            <div class="card-body">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Name" class="form-label small text-muted">Название</label>
+                        <input asp-for="Input.Name" class="form-control" />
+                        <span asp-validation-for="Input.Name" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Price" class="form-label small text-muted">Цена</label>
+                        <input asp-for="Input.Price" class="form-control" />
+                        <span asp-validation-for="Input.Price" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Duration" class="form-label small text-muted">Длительность (мин)</label>
+                        <input asp-for="Input.Duration" class="form-control" />
+                        <span asp-validation-for="Input.Duration" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input asp-for="Input.IsActive" class="form-check-input" />
+                        <label asp-for="Input.IsActive" class="form-check-label">Активна</label>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <a asp-page="Index" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
             </div>
-            <div class="mb-3">
-                <label asp-for="Input.Duration" class="form-label"></label>
-                <input asp-for="Input.Duration" class="form-control" />
-                <span asp-validation-for="Input.Duration" class="text-danger"></span>
-            </div>
-            <div class="mb-3 form-check">
-                <input asp-for="Input.IsActive" class="form-check-input" />
-                <label asp-for="Input.IsActive" class="form-check-label"></label>
-            </div>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
-            <a asp-page="Index" class="btn btn-secondary">Отмена</a>
-        </form>
+        </div>
     </div>
 </div>
 

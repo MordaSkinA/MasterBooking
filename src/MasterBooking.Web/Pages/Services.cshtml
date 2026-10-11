@@ -1,0 +1,32 @@
+@page
+@model MasterBooking.Web.Pages.ServicesModel
+@{
+    ViewData["Title"] = Model.Settings?.DisplayName ?? "Услуги";
+}
+
+@if (Model.Settings != null)
+{
+    <section class="w">
+        <h2 class="s">Услуги и цены</h2>
+        <div class="g3">
+            @foreach (var service in Model.Services)
+            {
+                <div class="card svc">
+                    <div class="n1">@service.Name</div>
+                    <div class="d1">@service.Duration мин.</div>
+                    <div class="p1">@service.Price.ToString("C0")</div>
+                </div>
+            }
+        </div>
+        @if (Model.Services.Any())
+        {
+            <p style="margin:32px 0 0"><a class="btn" asp-page="/Calendar">Выбрать время</a></p>
+        }
+    </section>
+}
+else
+{
+    <section class="w">
+        <h1>Настройка сайта...</h1>
+    </section>
+}

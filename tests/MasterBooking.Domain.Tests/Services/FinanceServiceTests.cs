@@ -24,15 +24,14 @@ namespace MasterBooking.Domain.Tests.Services
         [Fact]
         public async Task GetStatisticsAsync_ReturnsEmptyStatistics_WhenNoAppointmentsFound()
         {
-            int masterId = 1;
             var start = DateTime.Now.AddDays(-7);
             var end = DateTime.Now;
 
             _appointmentRepositoryMock
-                .Setup(r => r.GetCompletedAppointmentsAsync(masterId, start, end))
+                .Setup(r => r.GetCompletedAppointmentsAsync(start, end))
                 .ReturnsAsync(Enumerable.Empty<Appointment>());
 
-            var result = await _financeService.GetStatisticsAsync(masterId, start, end);
+            var result = await _financeService.GetStatisticsAsync(start, end);
 
             Assert.Equal(0, result.TotalIncome);
             Assert.Equal(0, result.AverageCheck);
@@ -42,7 +41,6 @@ namespace MasterBooking.Domain.Tests.Services
         [Fact]
         public async Task GetStatisticsAsync_CalculatesCorrectTotals_WhenAppointmentsExist()
         {
-            int masterId = 1;
             var start = DateTime.Now.AddDays(-7);
             var end = DateTime.Now;
 
@@ -54,10 +52,10 @@ namespace MasterBooking.Domain.Tests.Services
             };
 
             _appointmentRepositoryMock
-                .Setup(r => r.GetCompletedAppointmentsAsync(masterId, start, end))
+                .Setup(r => r.GetCompletedAppointmentsAsync(start, end))
                 .ReturnsAsync(appointments);
 
-            var result = await _financeService.GetStatisticsAsync(masterId, start, end);
+            var result = await _financeService.GetStatisticsAsync(start, end);
 
             Assert.Equal(4500m, result.TotalIncome);
             Assert.Equal(4500m / 3, result.AverageCheck);
@@ -69,15 +67,14 @@ namespace MasterBooking.Domain.Tests.Services
         [Fact]
         public async Task GetStatisticsAsync_HandlesZeroDivision_WhenAppointmentsAreEmpty()
         {
-            int masterId = 1;
             var start = DateTime.Now.AddDays(-7);
             var end = DateTime.Now;
 
             _appointmentRepositoryMock
-                .Setup(r => r.GetCompletedAppointmentsAsync(masterId, start, end))
+                .Setup(r => r.GetCompletedAppointmentsAsync(start, end))
                 .ReturnsAsync(new List<Appointment>());
 
-            var result = await _financeService.GetStatisticsAsync(masterId, start, end);
+            var result = await _financeService.GetStatisticsAsync(start, end);
 
             Assert.Equal(0, result.AverageCheck);
         }

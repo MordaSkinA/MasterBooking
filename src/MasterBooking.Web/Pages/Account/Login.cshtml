@@ -2,28 +2,49 @@
 @model MasterBooking.Web.Pages.Account.LoginModel
 @{
     ViewData["Title"] = "Вход";
+    Layout = "_AuthLayout";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <h2>Вход</h2>
-        <form method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Пароль</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <button class="w-100 btn btn-lg btn-primary" type="submit">Войти</button>
-        </form>
-    </div>
+<div class="card">
+    <h1 class="s" style="font-size: 24px; text-align: center; margin-bottom: 8px;">Вход в панель</h1>
+    <p class="muted" style="text-align: center; margin-bottom: 32px;">Записи, клиенты и настройки вашего сайта.</p>
+
+    <form method="post">
+        <div asp-validation-summary="All" class="text-danger" style="color: var(--error-text); margin-bottom: 16px; font-size: 14px;"></div>
+
+        <div class="form-group">
+            <label asp-for="Input.Email">Email</label>
+            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+            <span asp-validation-for="Input.Email" class="text-danger" style="color: var(--error-text); font-size: 13px;"></span>
+        </div>
+
+        <div class="form-group" style="position: relative;">
+            <label asp-for="Input.Password">Пароль</label>
+            <input asp-for="Input.Password" id="passwordInput" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Пароль" />
+            <span asp-validation-for="Input.Password" class="text-danger" style="color: var(--error-text); font-size: 13px;"></span>
+            <a href="javascript:void(0)" id="togglePassword" style="position: absolute; right: 12px; top: 42px; font-size: 14px; color: var(--primary); text-decoration: none; font-weight: 600;">Показать</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" style="margin-top: 8px;">Войти</button>
+
+        <div style="text-align: center; margin-top: 24px;">
+            <a asp-page="/Index" style="color: var(--muted); text-decoration: none; font-size: 14px;">&larr; На сайт</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const pwd = document.getElementById('passwordInput');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                this.textContent = 'Скрыть';
+            } else {
+                pwd.type = 'password';
+                this.textContent = 'Показать';
+            }
+        });
+    </script>
 }

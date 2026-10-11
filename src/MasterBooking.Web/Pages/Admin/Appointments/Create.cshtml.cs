@@ -16,13 +16,11 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
     {
         private readonly ApplicationDbContext _context;
         private readonly IAppointmentService _appointmentService;
-        private readonly IMasterProvider _masterProvider;
 
-        public CreateModel(ApplicationDbContext context, IAppointmentService appointmentService, IMasterProvider masterProvider)
+        public CreateModel(ApplicationDbContext context, IAppointmentService appointmentService)
         {
             _context = context;
             _appointmentService = appointmentService;
-            _masterProvider = masterProvider;
         }
 
         [BindProperty]
@@ -35,7 +33,7 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
             [Required]
             public int ServiceId { get; set; }
             [Required]
-            public DateTime StartDateTime { get; set; } = DateTime.Now.AddHours(1);
+            public DateTime StartDateTime { get; set; } = DateTime.UtcNow.AddHours(1);
             [Required]
             [Range(0, double.MaxValue, ErrorMessage = "Цена должна быть положительной")]
             public decimal FinalPrice { get; set; }
@@ -60,19 +58,19 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
                 return Page();
             }
 
-            var masterId = _masterProvider.GetMasterId();
-            if (masterId == null)
-            {
-                return RedirectToPage("/Account/Login");
-            }
+            var settings = await _context.SiteSettings.FirstOrDefaultAsync();
+            var timeZoneId = settings?.TimeZoneId ?? "Russian Standard Time";
+            var masterTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+
+            // Convert input local time to UTC
+            var startDateTimeUtc = TimeZoneInfo.ConvertTimeToUtc(Input.StartDateTime, masterTimeZone);
 
             var appointment = new Appointment
             {
-                MasterId = masterId.Value,
                 ClientId = Input.ClientId,
                 ServiceId = Input.ServiceId,
-                StartDateTime = Input.StartDateTime,
-                EndDateTime = Input.StartDateTime.AddMinutes(30),
+                StartDateTime = startDateTimeUtc,
+                EndDateTime = startDateTimeUtc, // Will be updated below
                 Status = Input.Status,
                 FinalPrice = Input.FinalPrice
             };
@@ -85,7 +83,7 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
 
             try
             {
-                await _appointmentService.ValidateAppointmentAsync(appointment, masterId.Value);
+                await _appointmentService.ValidateAppointmentAsync(appointment);
             }
             catch (AppointmentValidationException ex)
             {

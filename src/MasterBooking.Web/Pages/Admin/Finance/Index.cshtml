@@ -1,78 +1,86 @@
 @page "/admin/finance"
 @model MasterBooking.Web.Pages.Admin.Finance.IndexModel
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Финансы";
 }
 
-<div class="container mt-4">
-    <h1 class="mb-4">Финансы</h1>
+<div class="page-head">
+    <div>
+        <p class="eyebrow-date">@DateTime.Now.LongDate()</p>
+        <h1>Финансы</h1>
+    </div>
+</div>
 
-    <form method="post" class="row g-3 align-items-end mb-5 bg-light p-3 rounded border">
-        <div class="col-md-4">
-            <label for="StartDate" class="form-label">С даты</label>
-            <input type="date" asp-for="Input.StartDate" class="form-control" />
-        </div>
-        <div class="col-md-4">
-            <label for="EndDate" class="form-label">По дату</label>
-            <input type="date" asp-for="Input.EndDate" class="form-control" />
-        </div>
-        <div class="col-md-4">
-            <button type="submit" class="btn btn-primary w-100">Показать</button>
+<form method="post" class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label asp-for="Input.StartDate" class="form-label small text-muted">С даты</label>
+                <input type="date" asp-for="Input.StartDate" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Input.EndDate" class="form-label small text-muted">По дату</label>
+                <input type="date" asp-for="Input.EndDate" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-filter me-1"></i> Показать
+                </button>
+            </div>
         </div>
     </form>
+</div>
 
-    @if (Model.Statistics != null)
-    {
-        <div class="row mb-5">
-            <div class most-important class="col-md-6">
-                <div class="card text-white bg-success mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Общий доход</h5>
-                        <p class="card-text fs-2 fw-bold">@Model.Statistics.TotalIncome.ToString("C")</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card text-white bg-info mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Средний чек</h5>
-                        <p class="card-text fs-2 fw-bold">@Model.Statistics.AverageCheck.ToString("C")</p>
-                    </div>
-                </div>
-            </div>
+@if (Model.Statistics != null)
+{
+    <div class="kpi-grid">
+        <div class="kpi-card stat-card border-start border-success border-4">
+            <div class="kpi-label">Общий доход</div>
+            <div class="kpi-value text-success">@Model.Statistics.TotalIncome.Rub()</div>
         </div>
+        <div class="kpi-card stat-card border-start border-info border-4">
+            <div class="kpi-label">Средний чек</div>
+            <div class="kpi-value text-info">@Model.Statistics.AverageCheck.Rub()</div>
+        </div>
+    </div>
 
-        <div class="card shadow-sm">
-            <div class="card-header bg-white fw-bold">Доход по услугам</div>
-            <div class="card-body">
-                <table class="table table-hover">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold">Доход по услугам</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="admin-table-container">
+                <table class="admin-table">
                     <thead>
                         <tr>
-                            <th>Услуга</th>
-                            <th class="text-end">Доход</th>
+                            <th class="ps-4">Услуга</th>
+                            <th class="text-end pe-4">Доход</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model.Statistics.IncomeByService.OrderByDescending(x => x.Value))
                         {
                             <tr>
-                                <td>@item.Key</td>
-                                <td class="text-end">@item.Value.ToString("C")</td>
+                                <td class="ps-4">@item.Key</td>
+                                <td class="text-end pe-4 fw-semibold">@item.Value.Rub()</td>
                             </tr>
                         }
                         @if (!Model.Statistics.IncomeByService.Any())
                         {
                             <tr>
-                                <td colspan="2" class="text-center text-muted">Нет данных за выбранный период</td>
+                                <td colspan="2" class="text-center py-4 text-muted">Нет данных за выбранный период</td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
         </div>
-    }
-    else
-    {
-        <div class="alert alert-info">Выберите период для отображения статистики.</div>
-    }
-</div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        Выберите период для отображения статистики.
+    </div>
+}

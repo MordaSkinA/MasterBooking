@@ -1,0 +1,20 @@
+@using Microsoft.AspNetCore.Http
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+    var isServices = currentPage.EndsWith("Services");
+    var isWorks = currentPage.EndsWith("Works");
+    var isCalendar = currentPage.EndsWith("Calendar");
+    var isContacts = currentPage.EndsWith("Contacts");
+    var isIndex = currentPage.EndsWith("Index");
+}
+<header class="public-header">
+    <div class="container">
+        <a class="brand" asp-page="/Index">master-booking</a>
+        <nav class="nav-links">
+            <a class="nav-link @(isServices ? "on" : "")" asp-page="/Services">Услуги</a>
+            <a class="nav-link @(isWorks ? "on" : "")" asp-page="/Works">Работы</a>
+            <a class="nav-link @(isCalendar ? "on" : "")" asp-page="/Calendar">Календарь</a>
+            <a class="nav-link @(isContacts ? "on" : "")" asp-page="/Contacts">Контакты</a>
+        </nav>
+    </div>
+</header>

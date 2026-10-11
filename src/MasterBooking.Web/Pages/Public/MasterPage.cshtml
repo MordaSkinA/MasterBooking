@@ -1,229 +1,372 @@
-@page "/m/{slug}"
+@page "/m/{slug?}"
 @model MasterBooking.Web.Pages.Public.MasterPageModel
 @{
-    ViewData["Title"] = Model.Master.DisplayName;
-    var primaryColor = Model.Settings?.PrimaryColor ?? "#007bff";
-    var coverImage = Model.Settings?.CoverImage;
-    var aboutMe = Model.Settings?.AboutMe;
-    var phoneNumber = Model.Settings?.PhoneNumber;
-    var socialLinks = Model.Settings?.SocialLinks;
+    Layout = "_PublicLayout";
+    var settings = Model.Settings;
+    var name = settings?.DisplayName ?? "Мастер";
+    ViewData["Title"] = name;
+    ViewData["Accent"] = settings?.PrimaryColor;
+    ViewData["Theme"] = settings?.Theme;
+    ViewData["Description"] = "Услуги, работы и свободное время мастера " + name;
+
+    var coverImage = settings?.CoverImage;
+    var logo = settings?.Logo;
+    var aboutMe = settings?.AboutMe;
+    var phone = settings?.PhoneNumber;
+    var showCalendar = settings?.ShowCalendar ?? true;
+    var phoneHref = string.IsNullOrWhiteSpace(phone) ? string.Empty : "tel:" + new string(phone.Where(c => char.IsDigit(c) || c == '+').ToArray());
+    var initials = string.Concat(name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpperInvariant(w[0])));
+
+    var socials = new List<(string Url, string Label)>();
+    foreach (var raw in (settings?.SocialLinks ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+    {
+        if (Uri.TryCreate(raw, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+        {
+            socials.Add((uri.AbsoluteUri, uri.Host.StartsWith("www.") ? uri.Host.Substring(4) : uri.Host));
+        }
+    }
+
+    var hasServices = Model.Services.Any();
+    var hasGallery = Model.Gallery.Any();
+    var hasContacts = !string.IsNullOrEmpty(phoneHref) || socials.Any();
 }
 
 <style>
-    :root {
-        --primary-color: @primaryColor;
+    .hero-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
+        align-items: center;
+        padding: 32px;
+        max-width: 1120px;
+        margin: 0 auto;
     }
-
-    body {
-        background-color: #faf9f5;
-        color: #333;
+    .hero-text {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
-
-    .hero {
-        position: relative;
-        height: 400px;
+    .hero-text h1 {
+        margin: 0;
+        font-size: 52px;
+        line-height: 1.1;
+        font-weight: 800;
+    }
+    .hero-about {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.6;
+        color: #4A4558;
+    }
+    .hero-cover {
+        height: 380px;
+        border-radius: 24px;
+        background: #E6E0EF;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        color: #6A6277;
+        font-weight: 600;
+        overflow: hidden;
     }
-
-    .hero-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.4);
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-    }
-
-    .btn-primary {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-
-    .btn-primary:hover, .btn-primary:focus {
-        background-color: var(--primary-color);
-        filter: brightness(90%);
-        border-color: var(--primary-color);
-    }
-
-    .section-title {
-        color: var(--primary-color);
-        margin-bottom: 2rem;
-        font-weight: 700;
-    }
-
-    .card-service {
-        transition: transform 0.2s;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .card-service:hover {
-        transform: translateY(-5px);
-    }
-
-    .gallery-img {
+    .hero-cover img {
         width: 100%;
-        height: 250px;
+        height: 100%;
         object-fit: cover;
-        border-radius: 8px;
-        transition: transform 0.3s;
-        cursor: pointer;
     }
-
-    .gallery-img:hover {
-        transform: scale(1.03);
+    .hero-cover-empty {
+        font-size: 80px;
     }
-
-    #calendar {
-        background: white;
-        padding: 20px;
+    .btn-accent-new {
+        align-self: flex-start;
+        background: var(--accent, #5B2F91);
+        color: #fff;
+        padding: 14px 28px;
         border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        font-weight: 700;
+        text-decoration: none;
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+    .section-block {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 48px 32px;
+    }
+    .section-title {
+        margin: 0 0 24px;
+        font-size: 32px;
+        font-weight: 800;
+    }
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+    }
+    .service-card {
+        background: #fff;
+        border: 1px solid #E6E0EF;
+        border-radius: 16px;
+        padding: 24px;
+    }
+    .service-name {
+        font-weight: 800;
+        font-size: 18px;
+    }
+    .service-time {
+        color: #6A6277;
+        margin: 6px 0 16px;
+    }
+    .service-price {
+        font-weight: 800;
+        font-size: 22px;
+    }
+    .works-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+    .work-shot {
+        height: 260px;
+        border-radius: 16px;
+        background: #E6E0EF;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        overflow: hidden;
+    }
+    .work-shot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .contacts-container {
+        display: flex;
+        gap: 32px;
+        flex-wrap: wrap;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    .contacts-item {
+        display: flex;
+        align-items: center;
     }
 </style>
 
-<div class="container-fluid p-0">
-    @if (!string.IsNullOrEmpty(coverImage))
-    {
-        <header class="hero" style="background-image: url('@coverImage');">
-            <div class="hero-overlay"></div>
-            <div class="hero-content">
-                <h1 class="display-3 fw-bold">@Model.Master.DisplayName</h1>
-                @if (!string.IsNullOrEmpty(aboutMe))
-                {
-                    <p class="fs-4">@aboutMe</p>
-                }
-            </div>
-        </header>
-    }
-    else
-    {
-        <header class="bg-dark text-white py-5 text-center">
-            <h1 class="display-3 fw-bold">@Model.Master.DisplayName</h1>
-            @if (!string.IsNullOrEmpty(aboutMe))
+<header class="top wrap">
+    <a href="#top" class="top-name">
+        @if (!string.IsNullOrEmpty(logo))
+        {
+            <img src="@logo" alt="" class="top-logo" />
+        }
+        <span>@name</span>
+    </a>
+    <nav class="top-nav" aria-label="Разделы страницы">
+        @if (hasServices) { <a href="#services">Услуги</a> }
+        @if (hasGallery) { <a href="#works">Работы</a> }
+        @if (showCalendar) { <a href="#calendar">Календарь</a> }
+        @if (hasContacts) { <a href="#contacts">Контакты</a> }
+    </nav>
+</header>
+
+<section class="hero-section wrap" id="top">
+    <div class="hero-text">
+        <h1>@name</h1>
+        @if (!string.IsNullOrWhiteSpace(aboutMe))
+        {
+            <p class="hero-about">@aboutMe</p>
+        }
+        @if (showCalendar)
+        {
+            <a class="btn-accent-new" href="#calendar">Посмотреть свободное время</a>
+        }
+        else if (!string.IsNullOrEmpty(phoneHref))
+        {
+            <a class="btn-accent-new" href="@phoneHref">Позвонить</a>
+        }
+    </div>
+    <div class="hero-cover">
+        @if (!string.IsNullOrEmpty(coverImage))
+        {
+            <img src="@coverImage" alt="@name" />
+        }
+        else
+        {
+            <div class="hero-cover-empty" aria-hidden="true">@initials</div>
+        }
+    </div>
+</section>
+
+@if (hasServices)
+{
+    <section class="section-block" id="services">
+        <h2 class="section-title">Услуги и цены</h2>
+        <div class="services-grid">
+            @foreach (var service in Model.Services)
             {
-                <p class="fs-4">@aboutMe</p>
-            }
-        </header>
-    }
-</div>
-
-<div class="container mt-5">
-    @if (Model.Services.Any())
-    {
-        <section id="services" class="mb-5">
-            <h2 class="text-center section-title">Услуги</h2>
-            <div class="row">
-                @foreach (var service in Model.Services)
-                {
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 card-service">
-                            <div class="card-body text-center">
-                                <h5 class="card-title fw-bold">@service.Name</h5>
-                                <p class="card-text fs-5 text-muted">@service.Price.ToString("C")</p>
-                                <p class="badge rounded-pill text-bg-light">@service.Duration мин.</p>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        </section>
-    }
-
-    @if (Model.Gallery.Any())
-    {
-        <section id="gallery" class="mb-5">
-            <h2 class="text-center section-title">Галерея</h2>
-            <div class="row g-3">
-                @foreach (var image in Model.Gallery)
-                {
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <img src="@image.ImagePath" class="gallery-img" alt="Gallery Image" />
-                    </div>
-                }
-            </div>
-        </section>
-    }
-
-    <section id="booking" class="mb-5">
-        <h2 class="text-center section-title">Записаться</h2>
-        <div id="calendar"></div>
-    </section>
-
-    @if (!string.IsNullOrEmpty(phoneNumber) || !string.IsNullOrEmpty(socialLinks))
-    {
-        <footer class="text-center py-5 border-top mt-5">
-            <div class="mb-3">
-                @if (!string.IsNullOrEmpty(phoneNumber))
-                {
-                    <p class="fs-5">📞 @phoneNumber</p>
-                }
-            </div>
-            @if (!string.IsNullOrEmpty(socialLinks))
-            {
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="@socialLinks" target="_blank" class="btn btn-outline-dark btn-sm">Связаться со мной</a>
+                <div class="service-card">
+                    <div class="service-name">@service.Name</div>
+                    <div class="service-time">@service.Duration.Minutes() мин</div>
+                    <div class="service-price">@service.Price.Rub()</div>
                 </div>
             }
-            <p class="text-muted mt-4 small">© @DateTime.Now.Year @Model.Master.DisplayName</p>
-        </footer>
-    }
-</div>
+        </div>
+    </section>
+}
+
+@if (hasGallery)
+{
+    <section class="section-block" id="works">
+        <h2 class="section-title">Работы</h2>
+        <div class="works-grid">
+            @foreach (var image in Model.Gallery)
+            {
+                <button type="button" class="work-shot" data-full="@image.ImagePath" aria-label="Открыть фото крупно">
+                    <img src="@image.ImagePath" alt="Работа мастера" loading="lazy" />
+                </button>
+            }
+        </div>
+    </section>
+}
+
+@if (showCalendar)
+{
+    <section class="section-block wrap" id="calendar">
+        <h2 class="section-title">Свободное время</h2>
+        <p class="block-note">Серым отмечено занятое время. Чтобы записаться, напишите или позвоните мастеру.</p>
+        <div class="week-nav">
+            <button type="button" class="week-btn" id="weekPrev" aria-label="Предыдущая неделя">←</button>
+            <span class="week-label" id="weekLabel"></span>
+            <button type="button" class="week-btn" id="weekNext" aria-label="Следующая неделя">→</button>
+        </div>
+        <div class="cal-scroll">
+            <div class="cal-grid" id="calGrid" aria-live="polite"></div>
+        </div>
+    </section>
+}
+
+@if (hasContacts)
+{
+    <section class="section-block" id="contacts">
+        <h2 class="section-title">Контакты</h2>
+        <div class="contacts-container">
+            @if (!string.IsNullOrEmpty(phoneHref))
+            {
+                <a href="@phoneHref" class="contacts-item">@phone</a>
+            }
+            @foreach (var social in socials)
+            {
+                <a href="@social.Url" target="_blank" rel="noopener noreferrer" class="contacts-item">@social.Label</a>
+            }
+        </div>
+    </section>
+}
+
+<footer class="foot wrap">© @DateTime.Now.Year @name</footer>
+
+<dialog id="lightbox" class="lightbox">
+    <form method="dialog"><button class="lightbox-close" aria-label="Закрыть">×</button></form>
+    <img id="lightboxImg" alt="Работа мастера" />
+</dialog>
 
 @section Scripts {
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const slug = '@Model.Master.Slug';
-            const calendarEl = document.getElementById('calendar');
-
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'timeGridWeek',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                locale: 'ru',
-                slotMinTime: '08:00:00',
-                slotMaxTime: '22:00:00',
-                allDaySlot: false,
-                height: 'auto',
-                events: function(info, successCallback, failureCallback) {
-                    fetch(`/m/${slug}?handler=BusyIntervals`)
-                        .then(response => {
-                            if (!response.ok) throw new Error('Network response was not ok');
-                            return response.json();
-                        })
-                        .then(data => {
-                            successCallback(data);
-                        })
-                        .catch(error => {
-                            console.error('Error fetching busy intervals:', error);
-                            failureCallback(error);
-                        });
-                },
-                eventClassNames: function(arg) {
-                    return ['bg-danger-subtle', 'text-danger-emphasis'];
-                },
-                eventContent: function(arg) {
-                    return { html: '<div class="fw-bold">Занято</div>' };
-                }
+        (function () {
+            var box = document.getElementById('lightbox');
+            var img = document.getElementById('lightboxImg');
+            document.querySelectorAll('.work-shot').forEach(function (b) {
+                b.addEventListener('click', function () {
+                    img.src = b.dataset.full;
+                    box.showModal();
+                });
             });
-
-            calendar.render();
-        });
+            box.addEventListener('click', function (e) {
+                if (e.target === box) box.close();
+            });
+        })();
     </script>
+    @if (showCalendar)
+    {
+        <script>
+            (function () {
+                var slug = '';
+                var firstHour = 10;
+                var lastHour = 19;
+                var maxWeeksAhead = 8;
+                var grid = document.getElementById('calGrid');
+                var label = document.getElementById('weekLabel');
+                var prev = document.getElementById('weekPrev');
+                var next = document.getElementById('weekNext');
+                var dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+                var monthNames = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+                var busy = [];
+                var offset = 0;
+
+                function mondayOf(date) {
+                    var d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+                    return d;
+                }
+
+                function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+                function isBusy(from, to) {
+                    for (var i = 0; i < busy.length; i++) {
+                        if (from < busy[i].end && to > busy[i].start) return true;
+                    }
+                    return false;
+                }
+
+                function render() {
+                    var now = new Date();
+                    var monday = mondayOf(now);
+                    monday.setDate(monday.getDate() + offset * 7);
+                    var sunday = new Date(monday);
+                    sunday.setDate(sunday.getDate() + 6);
+                    label.textContent = monday.getDate() + ' ' + (monday.getMonth() === sunday.getMonth() ? '' : monthNames[monday.getMonth()] + ' ') + '– ' + sunday.getDate() + ' ' + monthNames[sunday.getMonth()];
+                    prev.disabled = offset <= 0;
+                    next.disabled = offset >= maxWeeksAhead;
+                    var html = '';
+                    for (var d = 0; d < 7; d++) {
+                        var day = new Date(monday);
+                        day.setDate(monday.getDate() + d);
+                        html += '<div class="cal-day"><h3 style="text-align:center;font-size:14px;margin-bottom:8px">' + dayNames[d] + ' ' + day.getDate() + '</h3>';
+                        for (var h = firstHour; h <= lastHour; h++) {
+                            var from = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, 0);
+                            var to = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h + 1, 0);
+                            if (to <= now) {
+                                html += '<div class="slot busy">–</div>';
+                            } else if (isBusy(from, to)) {
+                                html += '<div class="slot busy">Занято</div>';
+                            } else {
+                                html += '<div class="slot">' + pad(h) + ':00</div>';
+                            }
+                        }
+                        html += '</div>';
+                    }
+                    grid.innerHTML = html;
+                }
+
+                prev.addEventListener('click', function () { offset--; render(); });
+                next.addEventListener('click', function () { offset++; render(); });
+
+                render();
+
+                fetch('/m/' + encodeURIComponent(slug) + '?handler=BusyIntervals')
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('busy');
+                        return r.json();
+                    })
+                    .then(function (items) {
+                        busy = items.map(function (x) {
+                            return { start: new Date(x.start), end: new Date(x.end) };
+                        });
+                        render();
+                    })
+                    .catch(function () {
+                        label.textContent = 'Не удалось загрузить расписание';
+                    });
+            })();
+        </script>
+    }
 }

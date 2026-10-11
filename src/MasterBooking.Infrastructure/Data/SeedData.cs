@@ -17,7 +17,7 @@ namespace MasterBooking.Infrastructure.Data
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-            if (await context.Masters.AnyAsync())
+            if (await context.SiteSettings.AnyAsync())
             {
                 return;
             }
@@ -37,49 +37,42 @@ namespace MasterBooking.Infrastructure.Data
                 await userManager.CreateAsync(adminUser, adminPassword);
             }
 
-            var master = new Master
-            {
-                DisplayName = "Иван Иванов",
-                Slug = "ivan-ivanov",
-                UserId = adminUser.Id
-            };
-            context.Masters.Add(master);
-            await context.SaveChangesAsync();
-
             var services = new List<Service>
             {
-                new Service { MasterId = master.Id, Name = "Стрижка", Price = 1000m, IsActive = true },
-                new Service { MasterId = master.Id, Name = "Окрашивание", Price = 3000m, IsActive = true },
-                new Service { MasterId = master.Id, Name = "Укладка", Price = 1500m, IsActive = true }
+                new Service { Name = "Стрижка", Price = 1000m, IsActive = true },
+                new Service { Name = "Окрашивание", Price = 3000m, IsActive = true },
+                new Service { Name = "Укладка", Price = 1500m, IsActive = true }
             };
             context.Services.AddRange(services);
 
             var clients = new List<Client>
             {
-                new Client { MasterId = master.Id, Name = "Алексей Петров", PhoneNumber = "+79991234567" },
-                new Client { MasterId = master.Id, Name = "Мария Сидорова", PhoneNumber = "+79997654321" }
+                new Client { Name = "Алексей Петров", PhoneNumber = "+79991234567" },
+                new Client { Name = "Мария Сидорова", PhoneNumber = "+79997654321" }
             };
             context.Clients.AddRange(clients);
 
             var workingHours = new List<WorkingHours>
             {
-                new WorkingHours { MasterId = master.Id, DayOfWeek = DayOfWeek.Monday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) },
-                new WorkingHours { MasterId = master.Id, DayOfWeek = DayOfWeek.Tuesday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) },
-                new WorkingHours { MasterId = master.Id, DayOfWeek = DayOfWeek.Wednesday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) },
-                new WorkingHours { MasterId = master.Id, DayOfWeek = DayOfWeek.Thursday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) },
-                new WorkingHours { MasterId = master.Id, DayOfWeek = DayOfWeek.Friday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) }
+                new WorkingHours { DayOfWeek = DayOfWeek.Monday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) },
+                new WorkingHours { DayOfWeek = DayOfWeek.Tuesday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) },
+                new WorkingHours { DayOfWeek = DayOfWeek.Wednesday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) },
+                new WorkingHours { DayOfWeek = DayOfWeek.Thursday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) },
+                new WorkingHours { DayOfWeek = DayOfWeek.Friday, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0) }
             };
             context.WorkingHours.AddRange(workingHours);
 
             var settings = new SiteSettings
             {
-                MasterId = master.Id,
+                DisplayName = "Иван Иванов",
+                UserId = adminUser.Id,
                 Theme = "Light",
-                PrimaryColor = "#007bff",
+                PrimaryColor = "#5B2F91",
                 AboutMe = "Привет! Я профессиональный парикмахер с 10-летним стажем.",
                 PhoneNumber = "+79990000000",
                 SocialLinks = "https://instagram.com/ivanov",
-                ShowCalendar = true
+                ShowCalendar = true,
+                TimeZoneId = "Russian Standard Time"
             };
             context.SiteSettings.Add(settings);
 
@@ -87,21 +80,19 @@ namespace MasterBooking.Infrastructure.Data
             {
                 new Appointment
                 {
-                    MasterId = master.Id,
                     ClientId = clients[0].Id,
                     ServiceId = services[0].Id,
-                    StartDateTime = DateTime.Today.AddHours(10),
-                    EndDateTime = DateTime.Today.AddHours(11),
+                    StartDateTime = DateTime.SpecifyKind(DateTime.Today.AddHours(10), DateTimeKind.Utc),
+                    EndDateTime = DateTime.SpecifyKind(DateTime.Today.AddHours(11), DateTimeKind.Utc),
                     Status = "Completed",
                     FinalPrice = 1000m
                 },
                 new Appointment
                 {
-                    MasterId = master.Id,
                     ClientId = clients[1].Id,
                     ServiceId = services[1].Id,
-                    StartDateTime = DateTime.Today.AddHours(14),
-                    EndDateTime = DateTime.Today.AddHours(15),
+                    StartDateTime = DateTime.SpecifyKind(DateTime.Today.AddHours(14), DateTimeKind.Utc),
+                    EndDateTime = DateTime.SpecifyKind(DateTime.Today.AddHours(15), DateTimeKind.Utc),
                     Status = "Completed",
                     FinalPrice = 3000m
                 }

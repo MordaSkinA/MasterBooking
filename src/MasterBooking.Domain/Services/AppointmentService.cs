@@ -13,21 +13,21 @@ namespace MasterBooking.Domain.Services
             _repository = repository;
         }
 
-        public async Task ValidateAppointmentAsync(Appointment appointment, int masterId)
+        public async Task ValidateAppointmentAsync(Appointment appointment)
         {
             if (appointment.StartDateTime >= appointment.EndDateTime)
             {
                 throw new AppointmentValidationException("Конец записи должен быть позже начала.");
             }
 
-            await ValidateDayOffsAsync(appointment, masterId);
-            await ValidateWorkingHoursAsync(appointment, masterId);
-            await ValidateOverlapsAsync(appointment, masterId);
+            await ValidateDayOffsAsync(appointment);
+            await ValidateWorkingHoursAsync(appointment);
+            await ValidateOverlapsAsync(appointment);
         }
 
-        private async Task ValidateDayOffsAsync(Appointment appointment, int masterId)
+        private async Task ValidateDayOffsAsync(Appointment appointment)
         {
-            var dayOffs = await _repository.GetDayOffsAsync(masterId);
+            var dayOffs = await _repository.GetDayOffsAsync();
 
             for (var date = appointment.StartDateTime.Date; date <= appointment.EndDateTime.Date; date = date.AddDays(1))
             {
@@ -38,9 +38,9 @@ namespace MasterBooking.Domain.Services
             }
         }
 
-        private async Task ValidateWorkingHoursAsync(Appointment appointment, int masterId)
+        private async Task ValidateWorkingHoursAsync(Appointment appointment)
         {
-            var workingHours = await _repository.GetWorkingHoursAsync(masterId);
+            var workingHours = await _repository.GetWorkingHoursAsync();
 
             if (appointment.StartDateTime.Date != appointment.EndDateTime.Date)
             {
@@ -79,10 +79,9 @@ namespace MasterBooking.Domain.Services
             }
         }
 
-        private async Task ValidateOverlapsAsync(Appointment appointment, int masterId)
+        private async Task ValidateOverlapsAsync(Appointment appointment)
         {
             var existingAppointments = await _repository.GetAppointmentsAsync(
-                masterId,
                 appointment.StartDateTime,
                 appointment.EndDateTime);
 

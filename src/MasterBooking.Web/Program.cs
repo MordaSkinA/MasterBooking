@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MasterBooking.Infrastructure.Data;
 using MasterBooking.Domain.Interfaces;
-using MasterBooking.Web.Services;
 using MasterBooking.Infrastructure.Persistence;
 using MasterBooking.Domain.Services;
 using MasterBooking.Infrastructure.Services;
@@ -19,7 +18,6 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
     .AddDefaultTokenProviders();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IMasterProvider, MasterProvider>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IFileService, FileService>();
@@ -35,11 +33,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapRazorPages();

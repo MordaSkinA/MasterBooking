@@ -16,13 +16,11 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
     {
         private readonly ApplicationDbContext _context;
         private readonly IAppointmentService _appointmentService;
-        private readonly IMasterProvider _masterProvider;
 
-        public EditModel(ApplicationDbContext context, IAppointmentService appointmentService, IMasterProvider masterProvider)
+        public EditModel(ApplicationDbContext context, IAppointmentService appointmentService)
         {
             _context = context;
             _appointmentService = appointmentService;
-            _masterProvider = masterProvider;
         }
 
         [BindProperty]
@@ -58,13 +56,17 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
                 return NotFound();
             }
 
+            var settings = await _context.SiteSettings.FirstOrDefaultAsync();
+            var timeZoneId = settings?.TimeZoneId ?? "Russian Standard Time";
+            var masterTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+
             Input = new InputModel
             {
                 Id = appointment.Id,
                 ClientId = appointment.ClientId ?? 0,
                 ServiceId = appointment.ServiceId,
-                StartDateTime = appointment.StartDateTime,
-                EndDateTime = appointment.EndDateTime,
+                StartDateTime = TimeZoneInfo.ConvertTimeFromUtc(appointment.StartDateTime, masterTimeZone),
+                EndDateTime = TimeZoneInfo.ConvertTimeFromUtc(appointment.EndDateTime, masterTimeZone),
                 FinalPrice = appointment.FinalPrice,
                 Status = appointment.Status
             };
@@ -81,11 +83,9 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
                 return Page();
             }
 
-            var masterId = _masterProvider.GetMasterId();
-            if (masterId == null)
-            {
-                return RedirectToPage("/Account/Login");
-            }
+            var settings = await _context.SiteSettings.FirstOrDefaultAsync();
+            var timeZoneId = settings?.TimeZoneId ?? "Russian Standard Time";
+            var masterTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
 
             var appointment = await _context.Appointments.FindAsync(Input.Id);
             if (appointment == null)
@@ -95,14 +95,14 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
 
             appointment.ClientId = Input.ClientId;
             appointment.ServiceId = Input.ServiceId;
-            appointment.StartDateTime = Input.StartDateTime;
-            appointment.EndDateTime = Input.EndDateTime;
+            appointment.StartDateTime = TimeZoneInfo.ConvertTimeToUtc(Input.StartDateTime, masterTimeZone);
+            appointment.EndDateTime = TimeZoneInfo.ConvertTimeToUtc(Input.EndDateTime, masterTimeZone);
             appointment.FinalPrice = Input.FinalPrice;
             appointment.Status = Input.Status;
 
             try
             {
-                await _appointmentService.ValidateAppointmentAsync(appointment, masterId.Value);
+                await _appointmentService.ValidateAppointmentAsync(appointment);
             }
             catch (AppointmentValidationException ex)
             {

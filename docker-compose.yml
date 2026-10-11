@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15-alpine
@@ -12,6 +10,11 @@ services:
       - "8432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d masterbooking_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build:
@@ -24,7 +27,8 @@ services:
       - ConnectionStrings__DefaultConnection=Host=db;Database=masterbooking_db;Username=postgres;Password=postgres_password
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:

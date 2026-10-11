@@ -7,7 +7,7 @@ namespace MasterBooking.Domain.Interfaces
 {
     public interface IFinanceService
     {
-        Task<FinanceStatistics> GetStatisticsAsync(int masterId, DateTime start, DateTime end);
+        Task<FinanceStatistics> GetStatisticsAsync(DateTime start, DateTime end);
     }
 
     public class FinanceStatistics

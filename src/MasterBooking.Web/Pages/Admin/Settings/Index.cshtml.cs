@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MasterBooking.Domain.Entities;
-using MasterBooking.Domain.Interfaces;
 using MasterBooking.Domain.Exceptions;
+using MasterBooking.Domain.Interfaces;
 using MasterBooking.Infrastructure.Data;
 using MasterBooking.Infrastructure.Services;
 
@@ -14,13 +14,11 @@ namespace MasterBooking.Web.Pages.Admin.Settings
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly IMasterProvider _masterProvider;
         private readonly IFileService _fileService;
 
-        public IndexModel(ApplicationDbContext context, IMasterProvider masterProvider, IFileService fileService)
+        public IndexModel(ApplicationDbContext context, IFileService fileService)
         {
             _context = context;
-            _masterProvider = masterProvider;
             _fileService = fileService;
         }
 
@@ -35,58 +33,42 @@ namespace MasterBooking.Web.Pages.Admin.Settings
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var masterId = _masterProvider.GetMasterId();
-            if (masterId == null)
-            {
-                return RedirectToPage("/Account/Login");
-            }
+            Settings = await _context.SiteSettings.FirstOrDefaultAsync();
 
-            Settings = await _context.SiteSettings
-                .FirstOrDefaultAsync(s => s.MasterId == masterId.Value)
-                ?? new SiteSettings { MasterId = masterId.Value };
+            if (Settings == null)
+            {
+                Settings = new SiteSettings();
+            }
 
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var masterId = _masterProvider.GetMasterId();
-            if (masterId == null)
-            {
-                return RedirectToPage("/Account/Login");
-            }
-
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            var existingSettings = await _context.SiteSettings
-                .FirstOrDefaultAsync(s => s.MasterId == masterId.Value);
+            var existingSettings = await _context.SiteSettings.FirstOrDefaultAsync();
 
             if (existingSettings == null)
             {
-                existingSettings = new SiteSettings { MasterId = masterId.Value };
+                existingSettings = new SiteSettings();
                 _context.SiteSettings.Add(existingSettings);
             }
 
+            existingSettings.DisplayName = Settings.DisplayName;
+            existingSettings.UserId = Settings.UserId;
             existingSettings.Theme = Settings.Theme;
             existingSettings.PrimaryColor = Settings.PrimaryColor;
             existingSettings.AboutMe = Settings.AboutMe;
             existingSettings.PhoneNumber = Settings.PhoneNumber;
-
-            if (!string.IsNullOrWhiteSpace(Settings.SocialLinks))
-            {
-                if (!Uri.TryCreate(Settings.SocialLinks, UriKind.Absolute, out var uri) ||
-                    (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
-                {
-                    ModelState.AddModelError("Settings.SocialLinks", "Введите корректный URL (http:// или https://)");
-                    return Page();
-                }
-            }
-
             existingSettings.SocialLinks = Settings.SocialLinks;
             existingSettings.ShowCalendar = Settings.ShowCalendar;
+            existingSettings.CoverImage = Settings.CoverImage;
+            existingSettings.Logo = Settings.Logo;
+            existingSettings.TimeZoneId = Settings.TimeZoneId;
 
             try
             {

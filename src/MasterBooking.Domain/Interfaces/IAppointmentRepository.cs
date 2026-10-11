@@ -7,9 +7,9 @@ namespace MasterBooking.Domain.Interfaces
 {
     public interface IAppointmentRepository
     {
-        Task<IEnumerable<Appointment>> GetAppointmentsAsync(int masterId, DateTime start, DateTime end);
-        Task<IEnumerable<WorkingHours>> GetWorkingHoursAsync(int masterId);
-        Task<IEnumerable<DayOff>> GetDayOffsAsync(int masterId);
-        Task<IEnumerable<Appointment>> GetCompletedAppointmentsAsync(int masterId, DateTime start, DateTime end);
+        Task<IEnumerable<Appointment>> GetAppointmentsAsync(DateTime start, DateTime end);
+        Task<IEnumerable<WorkingHours>> GetWorkingHoursAsync();
+        Task<IEnumerable<DayOff>> GetDayOffsAsync();
+        Task<IEnumerable<Appointment>> GetCompletedAppointmentsAsync(DateTime start, DateTime end);
     }
 }

@@ -1,34 +1,44 @@
 @page
 @model MasterBooking.Web.Pages.Admin.Appointments.DeleteModel
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Удалить запись";
 }
 
-<h1 class="text-danger">Удалить запись</h1>
-<h3>Вы уверены, что хотите удалить эту запись?</h3>
-<div>
-    <dl class="row">
-        <dt class="col-sm-3">Клиент</dt>
-        <dd class="col-sm-9">@Model.Appointment.Client?.Name</dd>
+<div class="card border-0 shadow-sm border-start border-danger border-4">
+    <div class="card-body p-4">
+        <h3 class="fw-bold text-danger">Вы уверены, что хотите удалить эту запись?</h3>
+        <p class="text-muted">Это действие нельзя будет отменить.</p>
 
-        <dt class="col-sm-3">Услуга</dt>
-        <dd class="col-sm-9">@Model.Appointment.Service?.Name</dd>
+        <hr>
 
-        <dt class="col-sm-3">Дата начала</dt>
-        <dd class="col-sm-9">@Model.Appointment.StartDateTime.ToString("dd.MM.yyyy HH:mm")</dd>
+        <div class="row mb-3">
+            <div class="col-sm-4 text-muted">Клиент</div>
+            <div class="col-sm-8 fw-semibold">@Model.Appointment.Client?.Name</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-4 text-muted">Услуга</div>
+            <div class="col-sm-8 fw-semibold">@Model.Appointment.Service?.Name</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-4 text-muted">Дата и время</div>
+            <div class="col-sm-8 fw-semibold">@Model.Appointment.StartDateTime.ToString("dd.MM.yyyy HH:mm")</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-4 text-muted">Статус</div>
+            <div class="col-sm-8 fw-semibold">@Model.Appointment.Status</div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-sm-4 text-muted">Цена</div>
+            <div class="col-sm-8 fw-semibold">@Model.Appointment.FinalPrice.Rub()</div>
+        </div>
 
-        <dt class="col-sm-3">Дата окончания</dt>
-        <dd class="col-sm-9">@Model.Appointment.EndDateTime.ToString("dd.MM.yyyy HH:mm")</dd>
-
-        <dt class="col-sm-3">Статус</dt>
-        <dd class="col-sm-9">@Model.Appointment.Status</dd>
-
-        <dt class="col-sm-3">Цена</dt>
-        <dd class="col-sm-9">@Model.Appointment.FinalPrice.ToString("C")</dd>
-    </dl>
-    <form method="post">
-        <input type="hidden" asp-for="Appointment.Id" />
-        <input type="submit" value="Удалить" class="btn btn-danger" /> |
-        <a asp-page="./Index" class="btn btn-secondary">Назад</a>
-    </form>
+        <form method="post">
+            <input type="hidden" asp-for="Appointment.Id" />
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash me-1"></i> Подтвердить удаление
+            </button>
+            <a asp-page="./Index" class="btn btn-outline-secondary ms-2">Отмена</a>
+        </form>
+    </div>
 </div>

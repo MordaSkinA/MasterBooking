@@ -4,6 +4,6 @@ namespace MasterBooking.Domain.Interfaces
 {
     public interface IAppointmentService
     {
-        Task ValidateAppointmentAsync(Appointment appointment, int masterId);
+        Task ValidateAppointmentAsync(Appointment appointment);
     }
 }

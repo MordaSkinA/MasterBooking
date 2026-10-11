@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using MasterBooking.Domain.Entities;
-using MasterBooking.Domain.Interfaces;
 using MasterBooking.Infrastructure.Data;
 using System.ComponentModel.DataAnnotations;
 
@@ -13,12 +11,10 @@ namespace MasterBooking.Web.Pages.Admin.Clients
     public class CreateModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly IMasterProvider _masterProvider;
 
-        public CreateModel(ApplicationDbContext context, IMasterProvider masterProvider)
+        public CreateModel(ApplicationDbContext context)
         {
             _context = context;
-            _masterProvider = masterProvider;
         }
 
         [BindProperty]
@@ -41,17 +37,10 @@ namespace MasterBooking.Web.Pages.Admin.Clients
                 return Page();
             }
 
-            var masterId = _masterProvider.GetMasterId();
-            if (masterId == null)
-            {
-                return RedirectToPage("/Account/Login");
-            }
-
             var client = new Client
             {
                 Name = Input.Name,
-                PhoneNumber = Input.PhoneNumber,
-                MasterId = masterId.Value
+                PhoneNumber = Input.PhoneNumber
             };
 
             _context.Clients.Add(client);

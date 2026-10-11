@@ -1,17 +1,169 @@
-html {
-    font-size: 14px;
+:root {
+  --primary: #5B2F91;
+  --primary-dark: #3E1F66;
+  --bg: #FAFAFC;
+  --border: #E6E0EF;
+  --accent-bg: #EFEAF6;
+  --text: #1D1B26;
+  --muted: #6A6277;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/manrope.woff2') format('woff2');
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  color: var(--text);
+  background: var(--bg);
 }
 
-.container {
-    max-width: 1200px;
+a {
+  color: var(--primary);
+  text-decoration: none;
 }
 
-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
+a:hover {
+  color: var(--primary-dark);
 }
+
+.t {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.t.p { background: var(--border); color: var(--primary-dark); }
+.t.g { background: #D9EFE3; color: #15553A; }
+.t.r { background: #F6DDD3; color: #7A2E12; }
+.t.y { background: #FBEFC9; color: #6B4B00; }
+
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: #fff;
+  border: 0;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  min-height: 44px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--primary-dark);
+  color: #fff;
+}
+
+.btn2 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid var(--primary);
+  color: var(--primary-dark);
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  min-height: 44px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn2.gray {
+  border-color: #CFC8DB;
+  color: var(--muted);
+}
+
+input[type=text], input[type=tel], input[type=search], select, textarea {
+  border: 1px solid #CFC8DB;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 16px;
+  font-family: inherit;
+  background: #fff;
+  color: var(--text);
+}
+
+input[type=text], input[type=tel], input[type=search], select {
+  height: 48px;
+}
+
+textarea {
+  padding: 12px 14px;
+  height: 96px;
+}
+
+label.f {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.ph {
+  background: var(--border);
+  color: var(--muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.it {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.it:hover {
+  border-color: var(--primary);
+}
+
+.it span {
+  font-size: 13px;
+}
+
+.gr {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+h1 { margin: 0; }
+h2 { margin: 0 0 12px; font-size: 20px; }

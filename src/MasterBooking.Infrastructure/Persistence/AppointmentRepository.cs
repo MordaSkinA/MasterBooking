@@ -14,33 +14,30 @@ namespace MasterBooking.Infrastructure.Persistence
             _context = context;
         }
 
-        public async Task<IEnumerable<Appointment>> GetAppointmentsAsync(int masterId, DateTime start, DateTime end)
+        public async Task<IEnumerable<Appointment>> GetAppointmentsAsync(DateTime start, DateTime end)
         {
             return await _context.Appointments
-                .Where(a => a.MasterId == masterId && a.StartDateTime < end && a.EndDateTime > start)
+                .Where(a => a.StartDateTime < end && a.EndDateTime > start)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<WorkingHours>> GetWorkingHoursAsync(int masterId)
+        public async Task<IEnumerable<WorkingHours>> GetWorkingHoursAsync()
         {
             return await _context.WorkingHours
-                .Where(w => w.MasterId == masterId)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<DayOff>> GetDayOffsAsync(int masterId)
+        public async Task<IEnumerable<DayOff>> GetDayOffsAsync()
         {
             return await _context.DayOffs
-                .Where(d => d.MasterId == masterId)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Appointment>> GetCompletedAppointmentsAsync(int masterId, DateTime start, DateTime end)
+        public async Task<IEnumerable<Appointment>> GetCompletedAppointmentsAsync(DateTime start, DateTime end)
         {
             return await _context.Appointments
                 .Include(a => a.Service)
-                .Where(a => a.MasterId == masterId &&
-                            a.Status == "Done" &&
+                .Where(a => a.Status == "Completed" &&
                             a.StartDateTime >= start &&
                             a.StartDateTime <= end)
                 .ToListAsync();

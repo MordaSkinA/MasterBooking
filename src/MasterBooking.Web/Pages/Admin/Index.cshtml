@@ -1,8 +1,52 @@
 @page
-@model MasterBooking.Web.Pages.Admin.IndexModel
+@model IndexModel
 @{
     ViewData["Title"] = "Панель управления";
+    Layout = "_AdminLayout";
 }
 
-<h1>Панель управления</h1>
-<p>Добро пожаловать в админку!</p>
+<h1 class="s">Панель управления</h1>
+
+<div class="g3">
+    <div class="card" style="padding:24px">
+        <h2 style="font-size:16px;margin-bottom:16px">Статистика за сегодня</h2>
+        <div style="font-size:32px;font-weight:800">@Model.TodayAppointmentsCount</div>
+        <div class="muted" style="font-size:14px">Записей сегодня</div>
+    </div>
+    <div class="card" style="padding:24px">
+        <h2 style="font-size:16px;margin-bottom:16px">Доход за месяц</h2>
+        <div style="font-size:32px;font-weight:800">@Model.MonthlyRevenue.ToString("C0")</div>
+        <div class="muted" style="font-size:14px">Средний чек: @Model.AverageCheck.ToString("C0")</div>
+    </div>
+</div>
+
+<h2 class="s" style="margin-top:32px">Ближайшие записи</h2>
+<div class="card" style="overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-size:15px">
+        <thead>
+            <tr style="background:#F5F3F7;text-align:left">
+                <th style="padding:12px 20px">Дата и время</th>
+                <th style="padding:12px 20px">Клиент</th>
+                <th style="padding:12px 20px">Услуга</th>
+                <th style="padding:12px 20px">Цена</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appt in Model.UpcomingAppointments)
+            {
+                <tr style="border-top:1px solid #E6E0EF">
+                    <td style="padding:12px 20px">@appt.StartDateTime.ToString("dd.MM HH:mm")</td>
+                    <td style="padding:12px 20px">@appt.Client?.Name</td>
+                    <td style="padding:12px 20px">@appt.Service?.Name</td>
+                    <td style="padding:12px 20px">@appt.FinalPrice.ToString("C0")</td>
+                </tr>
+            }
+            @if (!Model.UpcomingAppointments.Any())
+            {
+                <tr>
+                    <td colspan="4" style="padding:24px;text-align:center;color:#6A6277">Ближайших записей нет</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

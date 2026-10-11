@@ -16,9 +16,9 @@ namespace MasterBooking.Domain.Services
             _appointmentRepository = appointmentRepository;
         }
 
-        public async Task<FinanceStatistics> GetStatisticsAsync(int masterId, DateTime start, DateTime end)
+        public async Task<FinanceStatistics> GetStatisticsAsync(DateTime start, DateTime end)
         {
-            var appointments = await _appointmentRepository.GetCompletedAppointmentsAsync(masterId, start, end);
+            var appointments = await _appointmentRepository.GetCompletedAppointmentsAsync(start, end);
 
             var statistics = new FinanceStatistics();
 
