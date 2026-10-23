@@ -1,5 +1,10 @@
-<footer class="public-footer">
-    <div class="container">
-        <p>&copy; @DateTime.Now.Year master-booking</p>
-    </div>
+@using Microsoft.EntityFrameworkCore
+@inject MasterBooking.Infrastructure.Data.ApplicationDbContext DbContext
+@{
+    var settings = DbContext.SiteSettings.FirstOrDefault();
+    var masterName = settings?.DisplayName ?? "master-booking";
+}
+<footer class="s">
+    <span>@masterName@(string.IsNullOrWhiteSpace(settings?.City) ? "" : " · " + settings.City)</span>
+    <a href="/Account/Login">Вход для мастера</a>
 </footer>

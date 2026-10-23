@@ -15,5 +15,7 @@ namespace MasterBooking.Domain.Entities
         public int Duration { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        public bool IsVisible { get; set; } = true;
     }
 }

@@ -1,0 +1,21 @@
+- main [ref=f33e2]:
+  - generic [ref=f33e3]: master-booking
+  - generic [ref=f33e4]:
+    - generic [ref=f33e5]:
+      - heading "Вход в панель" [level=1] [ref=f33e6]
+      - paragraph [ref=f33e7]: Записи, клиенты и настройки вашего сайта.
+    - generic [ref=f33e8]:
+      - generic [ref=f33e9]:
+        - generic [ref=f33e10]: Email
+        - textbox "Email" [ref=f33e11]: admin@demo.com
+      - generic [ref=f33e13]:
+        - text: Пароль
+        - generic [ref=f33e14]:
+          - textbox "Пароль Показать" [ref=f33e15]:
+            - /placeholder: Пароль
+            - text: Password123!
+          - link "Показать" [ref=f33e16] [cursor=pointer]:
+            - /url: javascript:void(0)
+      - button "Войти" [ref=f33e17] [cursor=pointer]
+  - link "← На сайт" [ref=f33e18] [cursor=pointer]:
+    - /url: /

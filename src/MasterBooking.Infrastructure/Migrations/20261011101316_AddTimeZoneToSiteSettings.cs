@@ -4,10 +4,10 @@
 
 namespace MasterBooking.Infrastructure.Migrations
 {
-    /// <inheritdoc />
+
     public partial class AddTimeZoneToSiteSettings : Migration
     {
-        /// <inheritdoc />
+
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
@@ -19,7 +19,7 @@ namespace MasterBooking.Infrastructure.Migrations
                 defaultValue: "Asia/Vladivostok");
         }
 
-        /// <inheritdoc />
+
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(

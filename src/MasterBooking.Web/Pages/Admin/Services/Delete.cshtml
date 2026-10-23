@@ -1,33 +1,16 @@
 @page
 @model MasterBooking.Web.Pages.Admin.Services.DeleteModel
 @{
-    Layout = "_AdminLayout";
     ViewData["Title"] = "Удалить услугу";
+    Layout = "_AdminLayout";
 }
 
-<div class="card border-0 shadow-sm border-start border-danger border-4">
-    <div class="card-body p-4">
-        <h3 class="fw-bold text-danger">Вы уверены, что хотите удалить эту услугу?</h3>
-        <p class="text-muted">Это действие нельзя будет отменить.</p>
+<div class="top"><h1>Удалить услугу</h1></div>
 
-        <hr>
-
-        <div class="mb-4">
-            <p class="mb-1 small text-muted">Название</p>
-            <p class="fs-5 fw-semibold">@Model.Service.Name</p>
-        </div>
-
-        <div class="mb-4">
-            <p class="mb-1 small text-muted">Цена</p>
-            <p class="fs-5 fw-semibold">@Model.Service.Price.Rub()</p>
-        </div>
-
-        <form method="post">
-            <input type="hidden" asp-for="Service.Id" />
-            <button type="submit" class="btn btn-danger">
-                <i class="bi bi-trash me-1"></i> Подтвердить удаление
-            </button>
-            <a asp-page="./Index" class="btn btn-outline-secondary ms-2">Отмена</a>
-        </form>
-    </div>
-</div>
+<form method="post" class="card form" style="max-width:640px">
+    <input type="hidden" asp-for="Service.Id" />
+    <div style="font-weight:800;font-size:20px">@Model.Service.Name</div>
+    <div class="muted">@Model.Service.Duration.Minutes() · @Model.Service.Price.Rub()</div>
+    <p class="muted" style="margin:0">Это действие нельзя будет отменить.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit" style="background:#7A2E12">Подтвердить удаление</button><a class="btn2 gray" asp-page="Index">Отмена</a></div>
+</form>

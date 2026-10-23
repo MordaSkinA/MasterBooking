@@ -26,6 +26,12 @@ namespace MasterBooking.Domain.Entities
 
         public string AboutMe { get; set; } = string.Empty;
 
+        [StringLength(100)]
+        public string City { get; set; } = string.Empty;
+
+        [StringLength(200)]
+        public string Address { get; set; } = string.Empty;
+
         [StringLength(50)]
         public string PhoneNumber { get; set; } = string.Empty;
 
@@ -33,6 +39,9 @@ namespace MasterBooking.Domain.Entities
         public string SocialLinks { get; set; } = string.Empty;
 
         public bool ShowCalendar { get; set; } = true;
+
+
+        public bool IsPublished { get; set; } = true;
 
         [StringLength(100)]
         public string TimeZoneId { get; set; } = "Russian Standard Time";

@@ -18,7 +18,12 @@ namespace MasterBooking.Web.Pages
 
         public async Task OnGetAsync()
         {
-            Settings = await _context.SiteSettings.FirstOrDefaultAsync();
+            Settings = await _context.SiteSettings.AsNoTracking().FirstOrDefaultAsync();
+
+            if (Settings is { IsPublished: false } && User.Identity?.IsAuthenticated != true)
+            {
+                Settings = null;
+            }
         }
     }
 }

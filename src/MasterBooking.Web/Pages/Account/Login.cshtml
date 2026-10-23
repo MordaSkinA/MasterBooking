@@ -1,50 +1,36 @@
 @page
 @model MasterBooking.Web.Pages.Account.LoginModel
 @{
-    ViewData["Title"] = "Вход";
+    ViewData["Title"] = "Вход в панель";
     Layout = "_AuthLayout";
+    var credentialsError = ViewData.ModelState.TryGetValue(string.Empty, out var entry) && entry.Errors.Count > 0;
+    var errBorder = "border-color:#7A2E12;";
+    var emailBad = credentialsError || ViewData.ModelState["Input.Email"]?.Errors.Count > 0;
+    var passBad = credentialsError || ViewData.ModelState["Input.Password"]?.Errors.Count > 0;
 }
 
-<div class="card">
-    <h1 class="s" style="font-size: 24px; text-align: center; margin-bottom: 8px;">Вход в панель</h1>
-    <p class="muted" style="text-align: center; margin-bottom: 32px;">Записи, клиенты и настройки вашего сайта.</p>
-
-    <form method="post">
-        <div asp-validation-summary="All" class="text-danger" style="color: var(--error-text); margin-bottom: 16px; font-size: 14px;"></div>
-
-        <div class="form-group">
-            <label asp-for="Input.Email">Email</label>
-            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-            <span asp-validation-for="Input.Email" class="text-danger" style="color: var(--error-text); font-size: 13px;"></span>
-        </div>
-
-        <div class="form-group" style="position: relative;">
-            <label asp-for="Input.Password">Пароль</label>
-            <input asp-for="Input.Password" id="passwordInput" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Пароль" />
-            <span asp-validation-for="Input.Password" class="text-danger" style="color: var(--error-text); font-size: 13px;"></span>
-            <a href="javascript:void(0)" id="togglePassword" style="position: absolute; right: 12px; top: 42px; font-size: 14px; color: var(--primary); text-decoration: none; font-weight: 600;">Показать</a>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-full" style="margin-top: 8px;">Войти</button>
-
-        <div style="text-align: center; margin-top: 24px;">
-            <a asp-page="/Index" style="color: var(--muted); text-decoration: none; font-size: 14px;">&larr; На сайт</a>
-        </div>
-    </form>
-</div>
+<div style="font-weight:800;font-size:20px">master-booking</div>
+<form method="post" class="card box">
+    <div><h1>Вход в панель</h1><p class="muted" style="margin:6px 0 0">Записи, клиенты и настройки вашего сайта.</p></div>
+    @if (credentialsError)
+    {
+        <div style="background:#F6DDD3;color:#7A2E12;border-radius:10px;padding:12px 14px;font-weight:600;font-size:14px">Неверный email или пароль. Проверьте данные и попробуйте ещё раз.</div>
+    }
+    <label class="f">Email<input type="email" asp-for="Input.Email" autocomplete="username" style="@(emailBad ? errBorder : "")"><span asp-validation-for="Input.Email" style="color:#7A2E12;font-size:14px;font-weight:600"></span></label>
+    <label class="f">Пароль<span class="pw"><input type="password" asp-for="Input.Password" id="passwordInput" autocomplete="current-password" style="@(passBad ? errBorder : "")"><a href="#" id="togglePassword">Показать</a></span><span asp-validation-for="Input.Password" style="color:#7A2E12;font-size:14px;font-weight:600"></span></label>
+    <button type="submit" class="btn" style="width:100%;min-height:48px;font-size:16px">Войти</button>
+</form>
+<a href="/" style="font-weight:600;text-decoration:none">← На сайт</a>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const pwd = document.getElementById('passwordInput');
-            if (pwd.type === 'password') {
-                pwd.type = 'text';
-                this.textContent = 'Скрыть';
-            } else {
-                pwd.type = 'password';
-                this.textContent = 'Показать';
-            }
+        document.getElementById('togglePassword').addEventListener('click', function (e) {
+            e.preventDefault();
+            var pwd = document.getElementById('passwordInput');
+            var show = pwd.type === 'password';
+            pwd.type = show ? 'text' : 'password';
+            this.textContent = show ? 'Скрыть' : 'Показать';
         });
     </script>
 }

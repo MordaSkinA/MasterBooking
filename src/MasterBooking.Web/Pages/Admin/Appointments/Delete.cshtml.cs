@@ -49,7 +49,7 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToPage("./Index");
+            return RedirectToPage("/Admin/Index");
         }
     }
 }

@@ -1,0 +1,33 @@
+@{
+    var path = (Context.Request.Path.Value ?? "/").TrimEnd('/');
+    string Cls(string p) => path.Equals(p, StringComparison.OrdinalIgnoreCase) ? "on" : "";
+    // TODO: подставить из SiteSettings (например, через ViewData из базовой PageModel или @inject)
+    var masterName = ViewData["MasterName"] as string ?? "master-booking";
+    var city = ViewData["City"] as string;
+}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>@(ViewData["Title"] ?? masterName)</title>
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/site.css">
+</head>
+<body>
+<header class="s">
+    <a class="brand" href="/">@masterName</a>
+    <nav class="s">
+        <a class="@Cls("/services")" href="/services">Услуги</a>
+        <a class="@Cls("/works")" href="/works">Работы</a>
+        <a class="@Cls("/calendar")" href="/calendar">Календарь</a>
+        <a class="@Cls("/contacts")" href="/contacts">Контакты</a>
+    </nav>
+</header>
+@RenderBody()
+<footer class="s">
+    <span>@masterName@(string.IsNullOrWhiteSpace(city) ? "" : " · " + city)</span>
+    <a href="/Account/Login">Вход для мастера</a>
+</footer>
+</body>
+</html>

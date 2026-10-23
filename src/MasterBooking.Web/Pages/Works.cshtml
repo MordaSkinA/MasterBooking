@@ -2,27 +2,18 @@
 @model MasterBooking.Web.Pages.WorksModel
 @{
     ViewData["Title"] = Model.Settings?.DisplayName ?? "Работы";
+    var galleryBg = new[] { "#E6E0EF", "#DAD2E8" };
 }
 
 @if (Model.Settings != null)
 {
     <section class="w">
-        <h2 class="s">Мои работы</h2>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr);gap:16px">
-            @foreach (var image in Model.Gallery)
+        <h2 class="s">Работы</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+            @for (var i = 0; i < Model.Gallery.Count; i++)
             {
-                <div class="card" style="height:260px;background-image:url('@image.ImagePath');background-size:cover;background-position:center;padding:0"></div>
+                <div style="height:260px;border-radius:16px;background:@galleryBg[i % 2] url('@Model.Gallery[i].ImagePath') center/cover no-repeat"></div>
             }
         </div>
-        @if (Model.Gallery.Any())
-        {
-            <p style="margin:32px 0 0"><a class="btn" asp-page="/Calendar">Записаться</a></p>
-        }
-    </section>
-}
-else
-{
-    <section class="w">
-        <h1>Настройка сайта...</h1>
     </section>
 }

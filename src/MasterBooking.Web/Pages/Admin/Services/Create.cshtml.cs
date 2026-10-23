@@ -18,21 +18,22 @@ namespace MasterBooking.Web.Pages.Admin.Services
         }
 
         [BindProperty]
-        public InputModel Input { get; set; } = default!;
+        public InputModel Input { get; set; } = new();
 
         public class InputModel
         {
-            [Required]
-            [StringLength(100)]
+            [Required(ErrorMessage = "Укажите название")]
+            [StringLength(100, ErrorMessage = "Не длиннее 100 символов")]
             public string Name { get; set; } = string.Empty;
 
-            [Range(0, double.MaxValue, ErrorMessage = "Цена должна быть положительной")]
+            [Range(0, double.MaxValue, ErrorMessage = "Цена не может быть отрицательной")]
             public decimal Price { get; set; }
 
             [Range(1, int.MaxValue, ErrorMessage = "Длительность должна быть больше 0")]
             public int Duration { get; set; }
 
-            public bool IsActive { get; set; } = true;
+    
+            public bool IsVisible { get; set; } = true;
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -47,7 +48,8 @@ namespace MasterBooking.Web.Pages.Admin.Services
                 Name = Input.Name,
                 Price = Input.Price,
                 Duration = Input.Duration,
-                IsActive = Input.IsActive
+                IsActive = true,
+                IsVisible = Input.IsVisible
             };
 
             _context.Services.Add(service);

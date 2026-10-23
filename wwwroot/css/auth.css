@@ -1,0 +1,5 @@
+
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px}
+.box{width:100%;max-width:420px;padding:36px;border-radius:20px;display:flex;flex-direction:column;gap:20px}
+.box h1{margin:0;font-size:28px;font-weight:800}
+.pw{position:relative;display:flex}.pw input{flex:1;padding-right:92px}.pw a{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:600}

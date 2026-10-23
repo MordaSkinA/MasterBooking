@@ -1,0 +1,25 @@
+@model MasterBooking.Web.Pages.PublicPageModelBase
+<section class="w">
+    <form method="post" class="card" style="border-radius:24px;padding:40px;display:flex;flex-direction:column;gap:20px;max-width:640px" id="request">
+        <h2 style="margin:0;font-size:32px;font-weight:800">Оставить заявку</h2>
+        <p style="margin:0;color:#4A4558">Оставьте имя и телефон, мастер свяжется с вами и уточнит время.</p>
+        @if (Model.RequestSent)
+        {
+            <div style="background:#D9EFE3;color:#15553A;border-radius:10px;padding:12px 14px;font-weight:600;font-size:14px">Заявка отправлена. Мастер свяжется с вами.</div>
+        }
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div style="background:#F6DDD3;color:#7A2E12;border-radius:10px;padding:12px 14px;font-weight:600;font-size:14px">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct())
+                {
+                    <div>@error</div>
+                }
+            </div>
+        }
+        <label class="f">Имя<input type="text" asp-for="Input.Name"></label>
+        <label class="f">Телефон<input type="tel" asp-for="Input.Phone"></label>
+        <label class="f">Комментарий<textarea asp-for="Input.Comment"></textarea></label>
+        <label style="display:flex;gap:10px;align-items:center;font-size:14px;color:#4A4558"><input type="checkbox" asp-for="Input.Consent" style="width:20px;height:20px">Согласен на обработку персональных данных</label>
+        <button class="btn" style="align-self:flex-start;min-height:48px" type="submit">Отправить</button>
+    </form>
+</section>

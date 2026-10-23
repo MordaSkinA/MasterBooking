@@ -1,0 +1,42 @@
+@{
+    var path = (Context.Request.Path.Value ?? "/").TrimEnd('/');
+    bool Is(string prefix) => path.Equals(prefix, StringComparison.OrdinalIgnoreCase)
+                              || path.StartsWith(prefix + "/", StringComparison.OrdinalIgnoreCase);
+    // "Записи" = /Admin и /Admin/Appointments/*
+    bool bookings = path.Equals("/Admin", StringComparison.OrdinalIgnoreCase) || Is("/Admin/Appointments");
+    string Cls(bool on) => on ? "n on" : "n";
+}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>@(ViewData["Title"] ?? "Панель мастера")</title>
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/panel.css">
+</head>
+<body>
+<div class="app">
+    <aside>
+        <div class="logo">master-booking</div>
+        <a class="@Cls(bookings)" href="/Admin">Записи</a>
+        <a class="@Cls(Is("/Admin/Clients"))" href="/Admin/Clients">Клиенты</a>
+        <a class="@Cls(Is("/Admin/Services"))" href="/Admin/Services">Услуги</a>
+        <a class="@Cls(Is("/Admin/Requests"))" href="/Admin/Requests">Заявки</a>
+        <a class="@Cls(Is("/Admin/Showcase"))" href="/Admin/Showcase">Витрина и отзывы</a>
+        <a class="@Cls(Is("/Admin/Finance"))" href="/Admin/Finance">Финансы</a>
+        <a class="@Cls(Is("/Admin/Settings"))" href="/Admin/Settings">Настройки сайта</a>
+        <div class="side-foot">
+            @* TODO: заменить на существующий выход из приложения (кнопка "Выйти" уже есть в текущем меню) *@
+            <form method="post" action="/Account/Logout" style="margin:0 0 16px">
+                <button type="submit" style="background:none;border:0;padding:0;font:inherit;font-weight:700;color:#5B2F91;cursor:pointer">Выйти</button>
+            </form>
+            <a href="/">На сайт</a>
+        </div>
+    </aside>
+    <main>
+        @RenderBody()
+    </main>
+</div>
+</body>
+</html>

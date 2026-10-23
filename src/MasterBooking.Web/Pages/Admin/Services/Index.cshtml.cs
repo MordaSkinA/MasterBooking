@@ -17,11 +17,24 @@ namespace MasterBooking.Web.Pages.Admin.Services
             _context = context;
         }
 
-        public IList<Service> Services { get; set; } = default!;
+        public IList<Service> Services { get; set; } = new List<Service>();
 
         public async Task OnGetAsync()
         {
-            Services = await _context.Services.ToListAsync();
+            Services = await _context.Services.AsNoTracking().OrderBy(s => s.Id).ToListAsync();
+        }
+
+
+        public async Task<IActionResult> OnPostToggleAsync(int id)
+        {
+            var service = await _context.Services.FindAsync(id);
+            if (service != null)
+            {
+                service.IsVisible = !service.IsVisible;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToPage();
         }
     }
 }

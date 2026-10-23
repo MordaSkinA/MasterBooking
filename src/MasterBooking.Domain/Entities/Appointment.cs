@@ -21,5 +21,12 @@ namespace MasterBooking.Domain.Entities
         public string Status { get; set; } = "Planned";
 
         public decimal FinalPrice { get; set; }
+
+
+        [StringLength(20)]
+        public string PaymentMethod { get; set; } = "Cash";
+
+        [StringLength(500)]
+        public string Notes { get; set; } = string.Empty;
     }
 }

@@ -1,18 +1,39 @@
+@{
+    var path = (Context.Request.Path.Value ?? "/").TrimEnd('/');
+    bool Is(string prefix) => path.Equals(prefix, StringComparison.OrdinalIgnoreCase)
+                              || path.StartsWith(prefix + "/", StringComparison.OrdinalIgnoreCase);
+
+    bool bookings = path.Equals("/Admin", StringComparison.OrdinalIgnoreCase) || Is("/Admin/Appointments");
+    string Cls(bool on) => on ? "n on" : "n";
+}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] — Панель мастера</title>
-    <link rel="stylesheet" href="~/css/main.css" asp-append-version="true" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>@(ViewData["Title"] ?? "Панель мастера")</title>
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/panel.css">
 </head>
 <body>
-    <div class="container" style="display: grid; grid-template-columns: 280px 1fr; gap: 32px; padding-top: 32px; padding-bottom: 32px;">
-        <partial name="_NavAdmin" />
-        <main class="content">
-            @RenderBody()
-        </main>
-    </div>
-    @await RenderSectionAsync("Scripts", required: false)
+<div class="app">
+    <aside>
+        <div class="logo">master-booking</div>
+        <a class="@Cls(bookings)" href="/Admin">Записи</a>
+        <a class="@Cls(Is("/Admin/Clients"))" href="/Admin/Clients">Клиенты</a>
+        <a class="@Cls(Is("/Admin/Services"))" href="/Admin/Services">Услуги</a>
+        <a class="@Cls(Is("/Admin/Requests"))" href="/Admin/Requests">Заявки</a>
+        <a class="@Cls(Is("/Admin/Showcase"))" href="/Admin/Showcase">Витрина и отзывы</a>
+        <a class="@Cls(Is("/Admin/Finance"))" href="/Admin/Finance">Финансы</a>
+        <a class="@Cls(Is("/Admin/Settings"))" href="/Admin/Settings">Настройки сайта</a>
+        <div class="side-foot">
+            <form asp-page="/Account/Logout" method="post" style="display:inline;margin:0"><button type="submit" style="background:none;border:0;padding:0;font:inherit;font-weight:700;color:#5B2F91;cursor:pointer">Выйти</button></form><br><br><a href="/">← На сайт</a>
+        </div>
+    </aside>
+    <main>
+        @RenderBody()
+    </main>
+</div>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

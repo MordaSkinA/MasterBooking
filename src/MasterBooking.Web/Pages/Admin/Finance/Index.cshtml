@@ -1,86 +1,55 @@
 @page "/admin/finance"
 @model MasterBooking.Web.Pages.Admin.Finance.IndexModel
 @{
-    Layout = "_AdminLayout";
     ViewData["Title"] = "Финансы";
+    Layout = "_AdminLayout";
+    string Chip(string key) => key == Model.ActivePeriod ? "chip on" : "chip";
+    var max = Model.Bars.Count == 0 ? 0 : Model.Bars.Max(b => b.Value);
+    string Num(double d) => d.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }
 
-<div class="page-head">
-    <div>
-        <p class="eyebrow-date">@DateTime.Now.LongDate()</p>
-        <h1>Финансы</h1>
+<div class="top">
+    <h1>Финансы</h1>
+    <a class="btn2" asp-page="AddExpense">Добавить расход</a>
+</div>
+
+<div class="chips">
+    <a class="@Chip("week")" asp-page="Index" asp-route-period="week">Неделя</a>
+    <a class="@Chip("month")" asp-page="Index" asp-route-period="month">Месяц</a>
+    <a class="@Chip("year")" asp-page="Index" asp-route-period="year">Год</a>
+</div>
+
+<div class="stats">
+    <div class="card stat"><div class="l">Доход</div><div class="v">@Model.Income.Rub()</div></div>
+    <div class="card stat"><div class="l">Расходы</div><div class="v">@Model.Expenses.Rub()</div></div>
+    <div class="card stat"><div class="l">Прибыль</div><div class="v">@Model.Profit.Rub()</div></div>
+    <div class="card stat"><div class="l">Средний чек</div><div class="v">@Model.AverageCheck.Rub()</div></div>
+</div>
+
+<div class="card" style="padding:24px">
+    <h2 style="margin-bottom:16px">@Model.ChartTitle</h2>
+    <div style="display:flex;align-items:flex-end;gap:16px;height:220px;border-bottom:1px solid #E6E0EF">
+        @foreach (var bar in Model.Bars)
+        {
+            var share = max > 0 ? (double)(bar.Value / max) : 0d;
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;height:100%">
+                <div title="@bar.Value.Rub()" style="width:100%;max-width:56px;height:@(Num(share * 90))%;background:#5B2F91;border-radius:8px 8px 0 0;opacity:@(Num(0.55 + 0.45 * share))"></div>
+                <span class="muted" style="font-size:13px">@bar.Label</span>
+            </div>
+        }
     </div>
 </div>
 
-<form method="post" class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <div class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label asp-for="Input.StartDate" class="form-label small text-muted">С даты</label>
-                <input type="date" asp-for="Input.StartDate" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label asp-for="Input.EndDate" class="form-label small text-muted">По дату</label>
-                <input type="date" asp-for="Input.EndDate" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-filter me-1"></i> Показать
-                </button>
-            </div>
-        </div>
+<div class="card tbl">
+    <div>
+        <div class="r h" style="grid-template-columns:110px 1.2fr 1.2fr 130px 110px"><span>Дата</span><span>Клиент</span><span>Услуга</span><span>Оплата</span><span>Сумма</span></div>
+        @foreach (var line in Model.Lines)
+        {
+            <div class="r" style="grid-template-columns:110px 1.2fr 1.2fr 130px 110px"><span>@line.Date.DayMonth()</span><span>@line.Client</span><span>@line.Service</span><span>@line.Payment</span><b>@line.Amount.Rub()</b></div>
+        }
+        @if (!Model.Lines.Any())
+        {
+            <div class="r muted" style="grid-template-columns:1fr">За выбранный период выполненных записей нет</div>
+        }
     </div>
-</form>
-
-@if (Model.Statistics != null)
-{
-    <div class="kpi-grid">
-        <div class="kpi-card stat-card border-start border-success border-4">
-            <div class="kpi-label">Общий доход</div>
-            <div class="kpi-value text-success">@Model.Statistics.TotalIncome.Rub()</div>
-        </div>
-        <div class="kpi-card stat-card border-start border-info border-4">
-            <div class="kpi-label">Средний чек</div>
-            <div class="kpi-value text-info">@Model.Statistics.AverageCheck.Rub()</div>
-        </div>
-    </div>
-
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3">
-            <h5 class="mb-0 fw-bold">Доход по услугам</h5>
-        </div>
-        <div class="card-body p-0">
-            <div class="admin-table-container">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th class="ps-4">Услуга</th>
-                            <th class="text-end pe-4">Доход</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Statistics.IncomeByService.OrderByDescending(x => x.Value))
-                        {
-                            <tr>
-                                <td class="ps-4">@item.Key</td>
-                                <td class="text-end pe-4 fw-semibold">@item.Value.Rub()</td>
-                            </tr>
-                        }
-                        @if (!Model.Statistics.IncomeByService.Any())
-                        {
-                            <tr>
-                                <td colspan="2" class="text-center py-4 text-muted">Нет данных за выбранный период</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-}
-else
-{
-    <div class="alert alert-info">
-        Выберите период для отображения статистики.
-    </div>
-}
+</div>

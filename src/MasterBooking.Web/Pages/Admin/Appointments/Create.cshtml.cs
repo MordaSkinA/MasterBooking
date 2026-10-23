@@ -7,6 +7,7 @@ using MasterBooking.Domain.Entities;
 using MasterBooking.Domain.Interfaces;
 using MasterBooking.Domain.Exceptions;
 using MasterBooking.Infrastructure.Data;
+using MasterBooking.Web.Helpers;
 using System.ComponentModel.DataAnnotations;
 
 namespace MasterBooking.Web.Pages.Admin.Appointments
@@ -24,28 +25,43 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
         }
 
         [BindProperty]
-        public InputModel Input { get; set; } = default!;
+        public InputModel Input { get; set; } = new();
 
         public class InputModel
         {
-            [Required]
-            public int ClientId { get; set; }
-            [Required]
-            public int ServiceId { get; set; }
-            [Required]
-            public DateTime StartDateTime { get; set; } = DateTime.UtcNow.AddHours(1);
-            [Required]
-            [Range(0, double.MaxValue, ErrorMessage = "Цена должна быть положительной")]
-            public decimal FinalPrice { get; set; }
-            [Required]
-            public string Status { get; set; } = "Planned";
+            [Required(ErrorMessage = "Выберите клиента")]
+            public int? ClientId { get; set; }
+
+            [Required(ErrorMessage = "Выберите услугу")]
+            public int? ServiceId { get; set; }
+
+            [Required(ErrorMessage = "Укажите дату")]
+            public DateOnly? Date { get; set; }
+
+            [Required(ErrorMessage = "Укажите время")]
+            public TimeOnly? Time { get; set; }
+
+            [StringLength(500, ErrorMessage = "Не длиннее 500 символов")]
+            public string? Notes { get; set; }
         }
 
         public SelectList? Clients { get; set; }
         public SelectList? Services { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+
+        public async Task<IActionResult> OnGetAsync(int? clientId)
         {
+            var settings = await _context.SiteSettings.AsNoTracking().FirstOrDefaultAsync();
+            var now = MasterTime.ToLocal(DateTime.UtcNow, MasterTime.Zone(settings?.TimeZoneId));
+            var nextHour = now.Date.AddHours(now.Hour + 1);
+
+            Input = new InputModel
+            {
+                ClientId = clientId,
+                Date = DateOnly.FromDateTime(nextHour),
+                Time = TimeOnly.FromDateTime(nextHour)
+            };
+
             await PopulateSelectLists();
             return Page();
         }
@@ -58,28 +74,29 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
                 return Page();
             }
 
-            var settings = await _context.SiteSettings.FirstOrDefaultAsync();
-            var timeZoneId = settings?.TimeZoneId ?? "Russian Standard Time";
-            var masterTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            var service = await _context.Services.FindAsync(Input.ServiceId);
+            if (service == null || !await _context.Clients.AnyAsync(c => c.Id == Input.ClientId))
+            {
+                ModelState.AddModelError(string.Empty, "Клиент или услуга не найдены.");
+                await PopulateSelectLists();
+                return Page();
+            }
 
-            // Convert input local time to UTC
-            var startDateTimeUtc = TimeZoneInfo.ConvertTimeToUtc(Input.StartDateTime, masterTimeZone);
+            var settings = await _context.SiteSettings.AsNoTracking().FirstOrDefaultAsync();
+            var zone = MasterTime.Zone(settings?.TimeZoneId);
+            var startUtc = MasterTime.ToUtc(Input.Date!.Value.ToDateTime(Input.Time!.Value), zone);
 
             var appointment = new Appointment
             {
                 ClientId = Input.ClientId,
-                ServiceId = Input.ServiceId,
-                StartDateTime = startDateTimeUtc,
-                EndDateTime = startDateTimeUtc, // Will be updated below
-                Status = Input.Status,
-                FinalPrice = Input.FinalPrice
+                ServiceId = service.Id,
+                StartDateTime = startUtc,
+                EndDateTime = startUtc.AddMinutes(service.Duration),
+                Status = "Planned",
+                FinalPrice = service.Price,
+                PaymentMethod = "Cash",
+                Notes = Input.Notes?.Trim() ?? string.Empty
             };
-
-            var service = await _context.Services.FindAsync(Input.ServiceId);
-            if (service != null)
-            {
-                appointment.EndDateTime = appointment.StartDateTime.AddMinutes(service.Duration);
-            }
 
             try
             {
@@ -95,13 +112,13 @@ namespace MasterBooking.Web.Pages.Admin.Appointments
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
-            return RedirectToPage("./Index");
+            return RedirectToPage("/Admin/Index");
         }
 
         private async Task PopulateSelectLists()
         {
-            Clients = new SelectList(await _context.Clients.ToListAsync(), "Id", "Name");
-            Services = new SelectList(await _context.Services.ToListAsync(), "Id", "Name");
+            Clients = new SelectList(await _context.Clients.AsNoTracking().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+            Services = new SelectList(await _context.Services.AsNoTracking().Where(s => s.IsActive).OrderBy(s => s.Id).ToListAsync(), "Id", "Name");
         }
     }
 }

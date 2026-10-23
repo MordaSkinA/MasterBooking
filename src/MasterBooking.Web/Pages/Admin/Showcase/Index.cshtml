@@ -1,0 +1,77 @@
+@page
+@model MasterBooking.Web.Pages.Admin.Showcase.IndexModel
+@{
+    ViewData["Title"] = "Витрина и отзывы";
+    Layout = "_AdminLayout";
+    var tileBg = new[] { "#E6E0EF", "#DAD2E8" };
+}
+
+<div class="top">
+    <h1>Витрина и отзывы</h1>
+    <a class="btn" asp-page="AddReview">Добавить отзыв</a>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div style="background:#F6DDD3;color:#7A2E12;border-radius:10px;padding:12px 14px;font-weight:600;font-size:14px">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct())
+        {
+            <div>@error</div>
+        }
+    </div>
+}
+
+<section style="display:flex;flex-direction:column;gap:16px">
+    <div class="top">
+        <h2>Работы на сайте</h2>
+        <form method="post" asp-page-handler="Upload" enctype="multipart/form-data" style="margin:0">
+            <label class="btn2"><input type="file" asp-for="Photo" accept=".jpg,.jpeg,.png,.webp" hidden onchange="this.form.submit()">Загрузить фото</label>
+        </form>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px">
+        @for (var i = 0; i < Model.Gallery.Count; i++)
+        {
+            var image = Model.Gallery[i];
+            var isCover = Model.Settings != null && Model.Settings.CoverImage == image.ImagePath;
+            <div style="position:relative;height:200px;border-radius:14px;background:@tileBg[i % 2] url('@image.ImagePath') center/cover no-repeat">
+                <span class="t" style="position:absolute;top:10px;left:10px;background:#fff;color:#3E1F66">@(isCover ? "Обложка" : "Показывается")</span>
+                <form method="post" asp-page-handler="Remove" asp-route-id="@image.Id" style="margin:0">
+                    <button type="submit" style="position:absolute;bottom:10px;right:12px;font:inherit;font-weight:700;font-size:14px;background:#fff;border:0;border-radius:8px;padding:4px 10px;color:#5B2F91;cursor:pointer">Убрать</button>
+                </form>
+            </div>
+        }
+    </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:16px">
+    <h2>Отзывы</h2>
+    @foreach (var review in Model.Reviews)
+    {
+        var tag = review.Status switch
+        {
+            "Pending" => ("y", "На проверке"),
+            "Published" => ("g", "Опубликован"),
+            _ => ("p", "Скрыт")
+        };
+        <div class="card q">
+            <div style="display:flex;flex-direction:column;gap:4px;max-width:640px">
+                <div style="font-weight:800">@review.ClientName <span class="t @tag.Item1" style="margin-left:8px">@tag.Item2</span></div>
+                <div style="color:#4A4558;line-height:1.5">@review.Text</div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                @if (review.Status != "Published")
+                {
+                    <form method="post" asp-page-handler="Publish" asp-route-id="@review.Id" style="display:contents"><button class="btn2" type="submit" style="background:#5B2F91;color:#fff">Опубликовать</button></form>
+                }
+                @if (review.Status != "Hidden")
+                {
+                    <form method="post" asp-page-handler="Hide" asp-route-id="@review.Id" style="display:contents"><button class="btn2 gray" type="submit">Скрыть</button></form>
+                }
+            </div>
+        </div>
+    }
+    @if (!Model.Reviews.Any())
+    {
+        <div class="card q muted">Отзывов пока нет</div>
+    }
+</section>

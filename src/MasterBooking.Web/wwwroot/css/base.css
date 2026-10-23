@@ -1,0 +1,19 @@
+@font-face{font-family:'Manrope';font-style:normal;font-weight:200 800;font-display:swap;src:url('../fonts/manrope-cyrillic.woff2') format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
+@font-face{font-family:'Manrope';font-style:normal;font-weight:200 800;font-display:swap;src:url('../fonts/manrope-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:'Manrope',sans-serif;color:#1D1B26;background:#FAFAFC}
+a{color:#5B2F91}a:hover{color:#3E1F66}
+.t{display:inline-block;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700}
+.t.p{background:#E6E0EF;color:#3E1F66}.t.g{background:#D9EFE3;color:#15553A}.t.e{background:#F6DDD3;color:#7A2E12}.t.y{background:#FBEFC9;color:#6B4B00}
+.card{background:#fff;border:1px solid #E6E0EF;border-radius:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;background:#5B2F91;color:#fff;border:0;padding:12px 24px;border-radius:12px;font-weight:700;font-size:15px;min-height:44px;font-family:inherit;text-decoration:none;cursor:pointer}
+.btn:hover{background:#3E1F66;color:#fff}
+.btn2{display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid #5B2F91;color:#3E1F66;padding:10px 18px;border-radius:10px;font-weight:700;font-size:14px;min-height:44px;font-family:inherit;text-decoration:none;cursor:pointer}
+.btn2.gray{border-color:#CFC8DB;color:#6A6277}
+.muted{color:#6A6277}
+input[type=text],input[type=tel],input[type=search],input[type=email],input[type=password],input[type=date],input[type=time],select,textarea{border:1px solid #CFC8DB;border-radius:10px;padding:0 14px;font-size:16px;font-family:inherit;background:#fff;color:#1D1B26}
+input[type=text],input[type=tel],input[type=search],input[type=email],input[type=password],input[type=date],input[type=time],select{height:48px}
+textarea{padding:12px 14px;height:96px}
+label.f{display:flex;flex-direction:column;gap:6px;font-weight:600}
+.ph{background:#E6E0EF;color:#6A6277;font-weight:600;display:flex;align-items:center;justify-content:center;text-align:center}

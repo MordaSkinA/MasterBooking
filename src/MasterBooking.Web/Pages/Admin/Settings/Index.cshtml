@@ -1,70 +1,88 @@
 @page
 @model IndexModel
 @{
-    ViewData["Title"] = "Настройки";
+    ViewData["Title"] = "Настройки сайта";
     Layout = "_AdminLayout";
+    string Err(string key) => "";
 }
 
-<h1 class="s">Настройки</h1>
+<form method="post" enctype="multipart/form-data" style="display:contents">
+    <div class="top">
+        <h1>Настройки сайта</h1>
+        <button class="btn" type="submit">Сохранить</button>
+    </div>
 
-<form method="post">
-    <div class="card" style="padding:24px;display:flex;flex-direction:column;gap:20px">
-        <h2 style="margin:0">Профиль мастера</h2>
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div style="background:#F6DDD3;color:#7A2E12;border-radius:10px;padding:12px 14px;font-weight:600;font-size:14px">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct())
+            {
+                <div>@error</div>
+            }
+        </div>
+    }
 
-        <label class="f">
-            Имя
-            <input type="text" asp-for="Settings.DisplayName" required>
-        </label>
-
-        <label class="f">
-            О себе
-            <textarea asp-for="Settings.AboutMe"></textarea>
-        </label>
-
-        <label class="f">
-            Телефон
-            <input type="tel" asp-for="Settings.PhoneNumber">
-        </label>
-
-        <label class="f">
-            Социальные сети (URL)
-            <input type="text" asp-for="Settings.SocialLinks">
-        </label>
-
-        <hr style="border:0;border-top:1px solid #E6E0EF;margin:8px 0">
-
-        <h2 style="margin:0">Визуальное оформление</h2>
-
-        <label class="f">
-            Основной цвет
-            <input type="text" asp-for="Settings.PrimaryColor">
-        </label>
-
-        <label class="f">
-            Тема
-            <select asp-for="Settings.Theme">
-                <option value="Light">Светлая</option>
-                <option value="Dark">Темная</option>
-            </select>
-        </label>
-
-        <label class="f">
-            Обложка
-            <input type="file" name="CoverImageFile" accept="image/*">
-        </label>
-
-        <label class="f">
-            Логотип
-            <input type="file" name="LogoFile" accept="image/*">
-        </label>
-
-        <label class="f">
-            Часовой пояс (ID, например: Russian Standard Time)
-            <input type="text" asp-for="Settings.TimeZoneId">
-        </label>
-
-        <div style="margin-top:16px">
-            <button type="submit" class="btn">Сохранить изменения</button>
+    <div class="two">
+        <div style="display:flex;flex-direction:column;gap:24px">
+            <div class="card form">
+                <h2>О мастере</h2>
+                <div class="cols">
+                    <label class="f">Имя мастера<input type="text" asp-for="Input.DisplayName"></label>
+                    <label class="f">Город<input type="text" asp-for="Input.City"></label>
+                </div>
+                <label class="f">Описание<textarea asp-for="Input.AboutMe"></textarea></label>
+                <label class="ph" style="height:140px;border-radius:12px;cursor:pointer;background:@(string.IsNullOrEmpty(Model.CoverImage) ? "#E6E0EF" : "#E6E0EF url('" + Model.CoverImage + "') center/cover no-repeat")">
+                    <input type="file" asp-for="CoverImageFile" accept=".jpg,.jpeg,.png,.webp" hidden onchange="this.parentNode.textContent = this.files[0].name; ">
+                    @(string.IsNullOrEmpty(Model.CoverImage) ? "Загрузить обложку" : "")
+                </label>
+            </div>
+            <div class="card form">
+                <h2>Контакты</h2>
+                <div class="cols">
+                    <label class="f">Телефон<input type="tel" asp-for="Input.PhoneNumber"></label>
+                    <label class="f">Telegram / Instagram<input type="text" asp-for="Input.SocialLinks"></label>
+                </div>
+                <label class="f">Адрес<input type="text" asp-for="Input.Address"></label>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:24px">
+            <div class="card form">
+                <h2>Рабочие часы</h2>
+                <div>
+                    @for (var i = 0; i < IndexModel.Days.Length; i++)
+                    {
+                        var day = Model.Input.WorkDays[i];
+                        <div class="day" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid #E6E0EF">
+                            <b style="width:40px">@IndexModel.DayNames[i]</b>
+                            <span class="muted hours" style="display:@(day.Enabled ? "inline-flex" : "none");align-items:center;gap:6px"><input type="time" name="Input.WorkDays[@i].Start" value="@day.Start?.ToString("HH:mm")" style="height:40px;width:110px;padding:0 8px"> – <input type="time" name="Input.WorkDays[@i].End" value="@day.End?.ToString("HH:mm")" style="height:40px;width:110px;padding:0 8px"></span>
+                            <span class="muted off-text" style="display:@(day.Enabled ? "none" : "inline")">Выходной</span>
+                            <label class="tog@(day.Enabled ? "" : " off")" style="cursor:pointer"><input type="checkbox" name="Input.WorkDays[@i].Enabled" value="true" hidden @(day.Enabled ? "checked" : "")></label>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="card form">
+                <h2>Публикация</h2>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span>Сайт виден клиентам</span>
+                    <label class="tog@(Model.Input.IsPublished ? "" : " off")" style="cursor:pointer"><input type="checkbox" name="Input.IsPublished" value="true" hidden @(Model.Input.IsPublished ? "checked" : "") onchange="this.parentNode.classList.toggle('off', !this.checked)"></label>
+                </div>
+                <div class="muted" style="font-size:14px">@Model.SiteAddress</div>
+                <a class="btn2" href="/">Открыть сайт</a>
+            </div>
         </div>
     </div>
 </form>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.day').forEach(function (row) {
+            var box = row.querySelector('input[type=checkbox]');
+            box.addEventListener('change', function () {
+                row.querySelector('.tog').classList.toggle('off', !box.checked);
+                row.querySelector('.hours').style.display = box.checked ? 'inline-flex' : 'none';
+                row.querySelector('.off-text').style.display = box.checked ? 'none' : 'inline';
+            });
+        });
+    </script>
+}

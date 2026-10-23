@@ -3,42 +3,70 @@
 @{
     ViewData["Title"] = "Клиенты";
     Layout = "_AdminLayout";
+    var filter = Model.Filter is "regular" or "lapsed" ? Model.Filter : "all";
+    string Chip(string key) => key == filter ? "chip on" : "chip";
 }
 
-<div style="display:flex; justify-content:space-between; align-items:center">
-    <h1 class="s">Клиенты</h1>
-    <a asp-page="Create" class="btn">Добавить клиента</a>
+<div class="top">
+    <h1>Клиенты</h1>
+    <a class="btn" asp-page="Create">Новый клиент</a>
 </div>
 
-<div class="card" style="overflow:hidden">
-    <table style="width:100%;border-collapse:collapse;font-size:15px">
-        <thead style="background:#F5F3F7;text-align:left">
-            <tr>
-                <th style="padding:12px 20px">Имя</th>
-                <th style="padding:12px 20px">Телефон</th>
-                <th style="padding:12px 20px; text-align:right">Действие</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Clients)
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+    <form method="get" style="display:contents">
+        <input type="hidden" name="filter" value="@(filter == "all" ? "" : filter)">
+        <input type="search" name="q" value="@Model.Q" placeholder="Поиск по имени или телефону" style="flex:1;min-width:240px">
+    </form>
+    <div class="chips">
+        <a class="@Chip("all")" asp-page="Index" asp-route-q="@Model.Q">Все</a>
+        <a class="@Chip("regular")" asp-page="Index" asp-route-q="@Model.Q" asp-route-filter="regular">Постоянные</a>
+        <a class="@Chip("lapsed")" asp-page="Index" asp-route-q="@Model.Q" asp-route-filter="lapsed">Давно не были</a>
+    </div>
+</div>
+
+<div class="two">
+    <div class="card tbl">
+        <div style="min-width:0">
+            <div class="r h" style="grid-template-columns:1.2fr 1.1fr 1fr 70px 90px"><span>Имя</span><span>Телефон</span><span>Последний визит</span><span>Визитов</span><span>Сумма</span></div>
+            @foreach (var row in Model.Rows)
             {
-                <tr style="border-top:1px solid #E6E0EF">
-                    <td style="padding:12px 20px; font-weight:700">@item.Name</td>
-                    <td style="padding:12px 20px">@item.PhoneNumber</td>
-                    <td style="padding:12px 20px; text-align:right">
-                        <div style="display:flex; gap:8px; justify-content:flex-end">
-                            <a asp-page="./Edit" asp-route-id="@item.Id" class="btn2">Изменить</a>
-                            <a asp-page="./Delete" asp-route-id="@item.Id" class="btn2 gray">Удалить</a>
-                        </div>
-                    </td>
-                </tr>
+                <div class="r" style="grid-template-columns:1.2fr 1.1fr 1fr 70px 90px">
+                    <b><a asp-page="Index" asp-route-id="@row.Client.Id" asp-route-q="@Model.Q" asp-route-filter="@(filter == "all" ? null : filter)" style="color:inherit;text-decoration:none">@row.Client.Name</a></b>
+                    <span>@row.Client.PhoneNumber</span>
+                    <span>@(row.LastVisit is { } last ? MasterTime.ToLocal(last, Model.Zone).DayMonth() : "")</span>
+                    <span>@row.Visits</span>
+                    <span>@row.Total.Rub()</span>
+                </div>
             }
-            @if (!Model.Clients.Any())
+            @if (!Model.Rows.Any())
             {
-                <tr>
-                    <td colspan="3" style="padding:40px; text-align:center; color:#6A6277">Клиентов пока нет.</td>
-                </tr>
+                <div class="r muted" style="grid-template-columns:1fr">Клиентов не найдено</div>
             }
-        </tbody>
-    </table>
+        </div>
+    </div>
+    @if (Model.Selected != null)
+    {
+        <div class="card" style="padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div>
+                <div style="font-weight:800;font-size:20px">@Model.Selected.Client.Name</div>
+                <div class="muted">@Model.Selected.Client.PhoneNumber</div>
+            </div>
+            <div>
+                <div class="muted" style="font-size:13px;font-weight:700;margin-bottom:6px">ЗАМЕТКИ</div>
+                <div style="border:1px solid #E6E0EF;border-radius:10px;padding:12px;min-height:72px" class="muted">@Model.Selected.Client.Notes</div>
+            </div>
+            <div>
+                <div class="muted" style="font-size:13px;font-weight:700;margin-bottom:6px">ИСТОРИЯ ВИЗИТОВ</div>
+                @foreach (var visit in Model.History)
+                {
+                    <div style="display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid #E6E0EF"><span>@visit.Date.DayMonth() · @visit.Service</span><b>@visit.Price.Rub()</b></div>
+                }
+            </div>
+            <a class="btn" asp-page="/Admin/Appointments/Create" asp-route-clientId="@Model.Selected.Client.Id">Записать клиента</a>
+        </div>
+    }
+    else
+    {
+        <div class="card" style="padding:24px"></div>
+    }
 </div>

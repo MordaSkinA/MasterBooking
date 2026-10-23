@@ -1,20 +1,18 @@
-@using Microsoft.AspNetCore.Http
+@using Microsoft.EntityFrameworkCore
+@inject MasterBooking.Infrastructure.Data.ApplicationDbContext DbContext
 @{
-    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
-    var isServices = currentPage.EndsWith("Services");
-    var isWorks = currentPage.EndsWith("Works");
-    var isCalendar = currentPage.EndsWith("Calendar");
-    var isContacts = currentPage.EndsWith("Contacts");
-    var isIndex = currentPage.EndsWith("Index");
+    var path = (Context.Request.Path.Value ?? "/").TrimEnd('/');
+    string Cls(string p) => path.Equals(p, StringComparison.OrdinalIgnoreCase) ? "on" : "";
+
+    var settings = DbContext.SiteSettings.FirstOrDefault();
+    var masterName = settings?.DisplayName ?? "master-booking";
 }
-<header class="public-header">
-    <div class="container">
-        <a class="brand" asp-page="/Index">master-booking</a>
-        <nav class="nav-links">
-            <a class="nav-link @(isServices ? "on" : "")" asp-page="/Services">Услуги</a>
-            <a class="nav-link @(isWorks ? "on" : "")" asp-page="/Works">Работы</a>
-            <a class="nav-link @(isCalendar ? "on" : "")" asp-page="/Calendar">Календарь</a>
-            <a class="nav-link @(isContacts ? "on" : "")" asp-page="/Contacts">Контакты</a>
-        </nav>
-    </div>
+<header class="s">
+    <a class="brand" href="/">@masterName</a>
+    <nav class="s">
+        <a class="@Cls("/services")" href="/services">Услуги</a>
+        <a class="@Cls("/works")" href="/works">Работы</a>
+        <a class="@Cls("/calendar")" href="/calendar">Календарь</a>
+        <a class="@Cls("/contacts")" href="/contacts">Контакты</a>
+    </nav>
 </header>

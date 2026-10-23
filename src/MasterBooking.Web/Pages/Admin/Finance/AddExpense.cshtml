@@ -1,0 +1,17 @@
+@page "/admin/finance/add-expense"
+@model MasterBooking.Web.Pages.Admin.Finance.AddExpenseModel
+@{
+    ViewData["Title"] = "Добавить расход";
+    Layout = "_AdminLayout";
+}
+
+<div class="top"><h1>Добавить расход</h1></div>
+
+<form method="post" class="card form" style="max-width:640px">
+    <label class="f">Название<input type="text" asp-for="Input.Title"><span asp-validation-for="Input.Title" style="color:#7A2E12;font-size:14px"></span></label>
+    <div class="cols">
+        <label class="f">Сумма, ₽<input type="text" inputmode="decimal" asp-for="Input.Amount"><span asp-validation-for="Input.Amount" style="color:#7A2E12;font-size:14px"></span></label>
+        <label class="f">Дата<input type="date" asp-for="Input.Date"><span asp-validation-for="Input.Date" style="color:#7A2E12;font-size:14px"></span></label>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit">Сохранить</button><a class="btn2 gray" asp-page="Index">Отмена</a></div>
+</form>

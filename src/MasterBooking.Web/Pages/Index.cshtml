@@ -2,26 +2,26 @@
 @model IndexModel
 @{
     ViewData["Title"] = Model.Settings?.DisplayName ?? "Главная";
-    Layout = "_PublicLayout";
+    var city = Model.Settings?.City;
+    var galleryBg = new[] { "#E6E0EF", "#DAD2E8" };
 }
 
 @if (Model.Settings != null)
 {
-    <section class="w" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr);gap:40px;align-items:center;padding-top:32px">
+    <section class="w" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:40px;align-items:center;padding-top:32px">
         <div style="display:flex;flex-direction:column;gap:20px">
-            <h1 class="s">@Model.Settings.DisplayName</h1>
+            <h1 class="s">Стрижки и окрашивание@(string.IsNullOrWhiteSpace(city) ? "" : " в " + city)</h1>
             <p style="margin:0;font-size:18px;line-height:1.6;color:#4A4558">@Model.Settings.AboutMe</p>
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <a class="btn" asp-page="/Admin/Index" style="align-self:flex-start;padding:14px 28px">Открыть панель</a>
-            }
-            else
-            {
-                <a class="btn" asp-page="/Account/Login" style="align-self:flex-start;padding:14px 28px">Войти в панель</a>
-            }
+            <a class="btn" href="/calendar" style="align-self:flex-start;padding:14px 28px">Посмотреть свободное время</a>
         </div>
-        <div class="ph" style="height:380px;border-radius:24px;background-image:url('@Model.Settings.CoverImage');background-size:cover;background-position:center">
-        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Settings.CoverImage))
+        {
+            <div class="ph" style="height:380px;border-radius:24px;background-image:url('@Model.Settings.CoverImage');background-size:cover;background-position:center"></div>
+        }
+        else
+        {
+            <div class="ph" style="height:380px;border-radius:24px"></div>
+        }
     </section>
 
     <section class="w">
@@ -29,37 +29,45 @@
         <div class="g3">
             @foreach (var service in Model.Services)
             {
-                <div class="card svc" style="padding:24px">
-                    <div class="n1" style="font-weight:800;font-size:18px">@service.Name</div>
-                    <div class="d1" style="color:#6A6277;margin:6px 0 16px">@service.Duration мин.</div>
-                    <div class="p1" style="font-weight:800;font-size:22px">@service.Price.ToString("C0")</div>
+                <div class="card svc">
+                    <div class="n1">@service.Name</div>
+                    <div class="d1">@service.Duration.Minutes()</div>
+                    <div class="p1">@service.Price.Rub()</div>
                 </div>
             }
         </div>
-        @if (Model.Services.Any())
-        {
-            <p style="margin:20px 0 0"><a href="/services" style="font-weight:700">Все услуги →</a></p>
-        }
+        <p style="margin:20px 0 0"><a href="/services" style="font-weight:700">Все услуги →</a></p>
     </section>
 
     <section class="w">
         <h2 class="s">Работы</h2>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr);gap:16px">
-            @foreach (var image in Model.Gallery)
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+            @for (var i = 0; i < Model.Gallery.Count; i++)
             {
-                <div style="height:260px;border-radius:16px;background-image:url('@image.ImagePath');background-size:cover;background-position:center"></div>
+                <div style="height:260px;border-radius:16px;background:@galleryBg[i % 2] url('@Model.Gallery[i].ImagePath') center/cover no-repeat"></div>
             }
         </div>
-        @if (Model.Gallery.Any())
-        {
-            <p style="margin:20px 0 0"><a href="/works" style="font-weight:700">Все работы →</a></p>
-        }
+        <p style="margin:20px 0 0"><a href="/works" style="font-weight:700">Все работы →</a></p>
     </section>
+
+    <section class="w">
+        <h2 class="s">Отзывы</h2>
+        <div class="g3" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+            @foreach (var review in Model.Reviews)
+            {
+                <div class="card" style="padding:24px;line-height:1.6">
+                    <p style="margin:0 0 16px">@review.Text</p>
+                    <div style="font-weight:800">@review.ClientName</div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <partial name="_RequestForm" model="Model" />
 }
 else
 {
     <section class="w">
         <h1 class="s">Добро пожаловать!</h1>
-        <p>Настройка сайта...</p>
     </section>
 }

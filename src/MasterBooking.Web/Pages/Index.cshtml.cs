@@ -1,37 +1,46 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MasterBooking.Domain.Entities;
 using MasterBooking.Infrastructure.Data;
 
 namespace MasterBooking.Web.Pages
 {
-    public class IndexModel : PageModel
+    public class IndexModel : PublicPageModelBase
     {
-        private readonly ApplicationDbContext _context;
-
-        public IndexModel(ApplicationDbContext context)
+        public IndexModel(ApplicationDbContext context) : base(context)
         {
-            _context = context;
         }
 
-        public SiteSettings? Settings { get; set; }
         public List<Service> Services { get; set; } = new();
         public List<GalleryImage> Gallery { get; set; } = new();
+        public List<Review> Reviews { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            Settings = await _context.SiteSettings.FirstOrDefaultAsync();
+            await LoadPageDataAsync();
+        }
+
+        protected override async Task LoadPageDataAsync()
+        {
+            await LoadSettingsAsync();
 
             if (Settings == null)
             {
                 return;
             }
 
-            Services = await _context.Services
-                .Where(s => s.IsActive)
+            Services = await Context.Services.AsNoTracking()
+                .Where(s => s.IsActive && s.IsVisible)
+                .OrderBy(s => s.Id)
+                .Take(3)
                 .ToListAsync();
-            Gallery = await _context.GalleryImages
+            Gallery = await Context.GalleryImages.AsNoTracking()
                 .OrderBy(g => g.Order)
+                .Take(4)
+                .ToListAsync();
+            Reviews = await Context.Reviews.AsNoTracking()
+                .Where(r => r.Status == Review.Published)
+                .OrderByDescending(r => r.CreatedAt)
+                .Take(3)
                 .ToListAsync();
         }
     }

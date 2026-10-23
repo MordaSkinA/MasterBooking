@@ -8,25 +8,20 @@
 {
     <section class="w">
         <h2 class="s">Контакты</h2>
-        <div class="card" style="max-width: 600px;">
-            <div class="form-group">
-                <label class="f">Телефон</label>
-                <div>@Model.Settings.PhoneNumber</div>
-            </div>
-            <div class="form-group">
-                <label class="f">Соцсети</label>
-                <div>@Model.Settings.SocialLinks</div>
-            </div>
-            <div class="form-group">
-                <label class="f">Обо мне</label>
-                <p>@Model.Settings.AboutMe</p>
-            </div>
+        <div style="display:flex;gap:32px;flex-wrap:wrap;font-size:18px;font-weight:600">
+            @if (!string.IsNullOrWhiteSpace(Model.Settings.PhoneNumber))
+            {
+                <span>@Model.Settings.PhoneNumber</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.Settings.SocialLinks))
+            {
+                <span>@Model.Settings.SocialLinks</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.Settings.Address))
+            {
+                <span>@Model.Settings.Address</span>
+            }
         </div>
-    </section>
-}
-else
-{
-    <section class="w">
-        <h1>Настройка сайта...</h1>
+        <div class="ph" style="height:320px;border-radius:20px;margin-top:32px"></div>
     </section>
 }

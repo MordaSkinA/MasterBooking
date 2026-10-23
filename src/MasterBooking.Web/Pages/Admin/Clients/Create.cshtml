@@ -1,38 +1,19 @@
 @page
 @model MasterBooking.Web.Pages.Admin.Clients.CreateModel
 @{
+    ViewData["Title"] = "Новый клиент";
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Добавить клиента";
 }
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">Новый клиент</h5>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="mb-3">
-                        <label asp-for="Input.Name" class="form-label small text-muted">Имя</label>
-                        <input asp-for="Input.Name" class="form-control" />
-                        <span asp-validation-for="Input.Name" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Input.PhoneNumber" class="form-label small text-muted">Телефон</label>
-                        <input asp-for="Input.PhoneNumber" class="form-control" />
-                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-                    </div>
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
-                        <a asp-page="Index" class="btn btn-outline-secondary">Отмена</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="top"><h1>Новый клиент</h1></div>
+
+<form method="post" class="card form" style="max-width:640px">
+    <div asp-validation-summary="ModelOnly" style="color:#7A2E12;font-weight:600;font-size:14px"></div>
+    <label class="f">Имя<input type="text" asp-for="Input.Name"><span asp-validation-for="Input.Name" style="color:#7A2E12;font-size:14px"></span></label>
+    <label class="f">Телефон<input type="tel" asp-for="Input.PhoneNumber"><span asp-validation-for="Input.PhoneNumber" style="color:#7A2E12;font-size:14px"></span></label>
+    <label class="f">Заметка<textarea asp-for="Input.Notes"></textarea></label>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit">Сохранить</button><a class="btn2 gray" asp-page="Index">Отмена</a></div>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -1,96 +1,104 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MasterBooking.Domain.Entities;
 using MasterBooking.Infrastructure.Data;
-using System.ComponentModel.DataAnnotations;
+using MasterBooking.Web.Helpers;
 
 namespace MasterBooking.Web.Pages
 {
-    public class CalendarModel : PageModel
+    public class CalendarModel : PublicPageModelBase
     {
-        private readonly ApplicationDbContext _context;
 
-        public CalendarModel(ApplicationDbContext context)
+        private const int SlotHours = 2;
+
+        private static readonly string[] ShortDays = { "Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб" };
+
+        public CalendarModel(ApplicationDbContext context) : base(context)
         {
-            _context = context;
         }
 
-        public SiteSettings? Settings { get; set; }
-        public List<Appointment> BusyAppointments { get; set; } = new();
 
-        [BindProperty]
-        public BookingInput Input { get; set; } = new();
+        public record Slot(string Text, bool Busy);
 
-        public class BookingInput
-        {
-            [Required]
-            public string Name { get; set; } = string.Empty;
-            [Required]
-            public string Phone { get; set; } = string.Empty;
-            [Required]
-            public DateTime DateTime { get; set; }
-        }
+        public record Day(string Title, List<Slot> Slots);
+
+        public List<Day> Week { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            Settings = await _context.SiteSettings.FirstOrDefaultAsync();
-
-            // Get appointments for the next 30 days
-            BusyAppointments = await _context.Appointments
-                .Where(a => a.StartDateTime >= DateTime.UtcNow.AddDays(-7) && a.StartDateTime <= DateTime.UtcNow.AddDays(30))
-                .ToListAsync();
+            await LoadPageDataAsync();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        protected override async Task LoadPageDataAsync()
         {
-            if (!ModelState.IsValid)
+            await LoadSettingsAsync();
+
+            if (Settings == null)
             {
-                return Page();
+                return;
             }
 
-            var settings = await _context.SiteSettings.FirstOrDefaultAsync();
-            var timeZoneId = settings?.TimeZoneId ?? "Russian Standard Time";
-            var masterTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            var zone = MasterTime.Zone(Settings.TimeZoneId);
+            var nowLocal = MasterTime.ToLocal(DateTime.UtcNow, zone);
 
-            // Input.DateTime is parsed as Local or Unspecified. Convert it to UTC.
-            var dateTimeUtc = TimeZoneInfo.ConvertTimeToUtc(Input.DateTime, masterTimeZone);
 
-            var client = await _context.Clients.FirstOrDefaultAsync(c => c.PhoneNumber == Input.Phone);
-            if (client == null)
+            var monday = nowLocal.Date.AddDays(-(((int)nowLocal.DayOfWeek + 6) % 7));
+            var weekEndUtc = MasterTime.ToUtc(monday.AddDays(7), zone);
+            var weekStartUtc = MasterTime.ToUtc(monday, zone);
+
+            var workingHours = await Context.WorkingHours.AsNoTracking().ToListAsync();
+            var daysOff = (await Context.DayOffs.AsNoTracking().ToListAsync()).Select(d => d.Date.Date).ToHashSet();
+
+
+            var busy = await Context.Appointments.AsNoTracking()
+                .Where(a => a.Status != "Cancelled" && a.EndDateTime > weekStartUtc && a.StartDateTime < weekEndUtc)
+                .Select(a => new { a.StartDateTime, a.EndDateTime })
+                .ToListAsync();
+
+            var days = new List<(DateTime Date, List<DateTime> Starts)>();
+            for (var i = 0; i < 7; i++)
             {
-                client = new Client
+                var date = monday.AddDays(i);
+                var starts = new List<DateTime>();
+                var hours = workingHours.FirstOrDefault(w => w.DayOfWeek == date.DayOfWeek);
+                if (hours != null && !daysOff.Contains(date))
                 {
-                    Name = Input.Name,
-                    PhoneNumber = Input.Phone,
-                    MasterId = settings?.UserId ?? string.Empty
-                };
-                _context.Clients.Add(client);
-                await _context.SaveChangesAsync();
+                    for (var t = date + hours.StartTime; t + TimeSpan.FromHours(SlotHours) <= date + hours.EndTime; t = t.AddHours(SlotHours))
+                    {
+                        starts.Add(t);
+                    }
+                }
+                days.Add((date, starts));
             }
 
-            var service = await _context.Services.FirstOrDefaultAsync(); // Default service
 
-            if (service == null)
+            var offCount = Math.Max(days.Max(d => d.Starts.Count), 1);
+
+            foreach (var (date, starts) in days)
             {
-                ModelState.AddModelError(string.Empty, "Услуги не найдены.");
-                return Page();
+                var title = ShortDays[(int)date.DayOfWeek] + " " + date.Day;
+                var slots = new List<Slot>();
+
+                if (starts.Count == 0)
+                {
+                    for (var i = 0; i < offCount; i++)
+                    {
+                        slots.Add(new Slot("Выходной", true));
+                    }
+                }
+                else
+                {
+                    foreach (var start in starts)
+                    {
+                        var startUtc = MasterTime.ToUtc(start, zone);
+                        var endUtc = startUtc.AddHours(SlotHours);
+                        var isBusy = start < nowLocal
+                                     || busy.Any(b => b.StartDateTime < endUtc && b.EndDateTime > startUtc);
+                        slots.Add(new Slot(isBusy ? "Занято" : start.ToString("HH:mm"), isBusy));
+                    }
+                }
+
+                Week.Add(new Day(title, slots));
             }
-
-            var appointment = new Appointment
-            {
-                ClientId = client.Id,
-                ServiceId = service.Id,
-                StartDateTime = dateTimeUtc,
-                EndDateTime = dateTimeUtc.AddMinutes(service.Duration),
-                Status = "New",
-                FinalPrice = service.Price
-            };
-
-            _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
-
-            return RedirectToPage("/Index");
         }
     }
 }

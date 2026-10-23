@@ -1,0 +1,18 @@
+@page
+@model MasterBooking.Web.Pages.Admin.Showcase.AddReviewModel
+@{
+    ViewData["Title"] = "Добавить отзыв";
+    Layout = "_AdminLayout";
+}
+
+<div class="top"><h1>Добавить отзыв</h1></div>
+
+<form method="post" class="card form" style="max-width:640px">
+    <label class="f">Имя клиента<input type="text" asp-for="Input.ClientName"><span asp-validation-for="Input.ClientName" style="color:#7A2E12;font-size:14px"></span></label>
+    <label class="f">Текст отзыва<textarea asp-for="Input.Text"></textarea><span asp-validation-for="Input.Text" style="color:#7A2E12;font-size:14px"></span></label>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit">Сохранить</button><a class="btn2 gray" asp-page="Index">Отмена</a></div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

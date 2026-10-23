@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MasterBooking.Domain.Entities;
 using MasterBooking.Domain.Interfaces;
 using MasterBooking.Infrastructure.Data;
+using MasterBooking.Web.Helpers;
 
 namespace MasterBooking.Web.Pages.Admin
 {
@@ -24,11 +25,16 @@ namespace MasterBooking.Web.Pages.Admin
         public decimal AverageCheck { get; set; }
         public List<Appointment> UpcomingAppointments { get; set; } = new();
 
+        public TimeZoneInfo Zone { get; set; } = TimeZoneInfo.Utc;
+
+        public int WeeklyAppointmentCount { get; set; }
+        public List<Appointment> WeeklyAppointments { get; set; } = new();
+
         public async Task OnGetAsync()
         {
             var settings = await _context.SiteSettings.FirstOrDefaultAsync();
-            var timeZoneId = settings?.TimeZoneId ?? "Russian Standard Time";
-            var masterTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            var masterTimeZone = MasterTime.Zone(settings?.TimeZoneId);
+            Zone = masterTimeZone;
 
             var masterNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, masterTimeZone);
             var masterToday = masterNow.Date;
@@ -40,16 +46,16 @@ namespace MasterBooking.Web.Pages.Admin
             var startOfMonthUtc = TimeZoneInfo.ConvertTimeToUtc(startOfMonthInMaster, masterTimeZone);
             var endOfMonthUtc = TimeZoneInfo.ConvertTimeToUtc(startOfMonthInMaster.AddMonths(1), masterTimeZone);
 
-            // 1. Today's appointments
+
             TodayAppointmentsCount = await _context.Appointments
                 .CountAsync(a => a.StartDateTime >= startOfTodayUtc && a.StartDateTime < startOfNextDayUtc);
 
-            // 2. Monthly revenue and average check
+
             var stats = await _financeService.GetStatisticsAsync(startOfMonthUtc, endOfMonthUtc);
             MonthlyRevenue = stats.TotalIncome;
             AverageCheck = stats.AverageCheck;
 
-            // 3. Upcoming appointments
+
             UpcomingAppointments = await _context.Appointments
                 .Include(a => a.Client)
                 .Include(a => a.Service)
@@ -57,6 +63,23 @@ namespace MasterBooking.Web.Pages.Admin
                 .OrderBy(a => a.StartDateTime)
                 .Take(5)
                 .ToListAsync();
+
+
+            int diff = (7 + (masterToday.DayOfWeek - DayOfWeek.Monday)) % 7;
+            var startOfWeekInMaster = masterToday.AddDays(-diff);
+            var endOfWeekInMaster = startOfWeekInMaster.AddDays(7);
+
+            var startOfWeekUtc = TimeZoneInfo.ConvertTimeToUtc(startOfWeekInMaster, masterTimeZone);
+            var endOfWeekUtc = TimeZoneInfo.ConvertTimeToUtc(endOfWeekInMaster, masterTimeZone);
+
+            WeeklyAppointments = await _context.Appointments
+                .Include(a => a.Client)
+                .Include(a => a.Service)
+                .Where(a => a.StartDateTime >= startOfWeekUtc && a.StartDateTime < endOfWeekUtc)
+                .OrderBy(a => a.StartDateTime)
+                .ToListAsync();
+
+            WeeklyAppointmentCount = WeeklyAppointments.Count;
         }
     }
 }

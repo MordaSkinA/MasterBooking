@@ -1,0 +1,15 @@
+{
+  "name": "visual-check",
+  "private": true,
+  "type": "module",
+  "description": "Сравнение макетов из PAGES с реальными страницами приложения",
+  "scripts": {
+    "check": "node run.mjs",
+    "self-test": "node run.mjs --self-test"
+  },
+  "dependencies": {
+    "pixelmatch": "5.3.0",
+    "playwright": "^1.64.1",
+    "pngjs": "7.0.0"
+  }
+}

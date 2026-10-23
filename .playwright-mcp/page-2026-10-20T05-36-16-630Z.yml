@@ -1,0 +1,20 @@
+- main [ref=f30e2]:
+  - generic [ref=f30e3]:
+    - heading "Вход в панель" [level=1] [ref=f30e4]
+    - paragraph [ref=f30e5]: Записи, клиенты и настройки вашего сайта.
+    - generic [ref=f30e6]:
+      - generic:
+        - list
+      - generic [ref=f30e7]:
+        - generic [ref=f30e8]: Email
+        - textbox "Email" [ref=f30e9]:
+          - /placeholder: name@example.com
+          - text: admin@demo.com
+      - generic [ref=f30e10]:
+        - generic [ref=f30e11]: Пароль
+        - textbox "Пароль" [ref=f30e12]: Password123!
+        - link "Показать" [ref=f30e13] [cursor=pointer]:
+          - /url: javascript:void(0)
+      - button "Войти" [ref=f30e14] [cursor=pointer]
+      - link "← На сайт" [ref=f30e16] [cursor=pointer]:
+        - /url: /

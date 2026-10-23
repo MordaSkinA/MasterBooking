@@ -1,0 +1,53 @@
+@page
+@model MasterBooking.Web.Pages.Admin.Requests.IndexModel
+@{
+    ViewData["Title"] = "Входящие заявки";
+    Layout = "_AdminLayout";
+    var filter = Model.Status is "new" or "contacted" or "converted" ? Model.Status : "all";
+    string Chip(string key) => key == filter ? "chip on" : "chip";
+    string keep = filter == "all" ? "" : filter;
+}
+
+<div class="top"><h1>Входящие заявки</h1></div>
+
+<div class="chips">
+    <a class="@Chip("all")" asp-page="Index">Все</a>
+    <a class="@Chip("new")" asp-page="Index" asp-route-status="new">Новые</a>
+    <a class="@Chip("contacted")" asp-page="Index" asp-route-status="contacted">Связались</a>
+    <a class="@Chip("converted")" asp-page="Index" asp-route-status="converted">Стали клиентами</a>
+</div>
+
+@foreach (var request in Model.Requests)
+{
+    var tag = request.Status switch
+    {
+        "New" => ("p", "Новая"),
+        "Contacted" => ("y", "Связались"),
+        _ => ("g", "Стал клиентом")
+    };
+    <div class="card q">
+        <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="font-weight:800;font-size:17px">@request.Name <span class="t @tag.Item1" style="margin-left:8px">@tag.Item2</span></div>
+            <div style="color:#4A4558">@request.Phone@(request.Service != null ? " · " + request.Service.Name : "")</div>
+            @if (!string.IsNullOrWhiteSpace(request.Comment))
+            {
+                <div class="muted" style="font-size:14px">@request.Comment</div>
+            }
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+            @if (request.Status == "New")
+            {
+                <form method="post" asp-page-handler="Contact" asp-route-id="@request.Id" asp-route-status="@keep" style="display:contents"><button class="btn2" type="submit">Связался</button></form>
+            }
+            @if (request.Status is "New" or "Contacted")
+            {
+                <form method="post" asp-page-handler="Convert" asp-route-id="@request.Id" asp-route-status="@keep" style="display:contents"><button class="btn2" type="submit" style="background:#5B2F91;color:#fff">Создать клиента</button></form>
+                <form method="post" asp-page-handler="Reject" asp-route-id="@request.Id" asp-route-status="@keep" style="display:contents"><button class="btn2 gray" type="submit">Отклонить</button></form>
+            }
+        </div>
+    </div>
+}
+@if (!Model.Requests.Any())
+{
+    <div class="card q muted">Заявок пока нет</div>
+}

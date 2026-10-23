@@ -37,7 +37,7 @@ namespace MasterBooking.Infrastructure.Persistence
         {
             return await _context.Appointments
                 .Include(a => a.Service)
-                .Where(a => a.Status == "Completed" &&
+                .Where(a => (a.Status == "Completed" || a.Status == "Done") &&
                             a.StartDateTime >= start &&
                             a.StartDateTime <= end)
                 .ToListAsync();

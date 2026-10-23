@@ -5,48 +5,33 @@
     Layout = "_AdminLayout";
 }
 
-<div style="display:flex; justify-content:space-between; align-items:center">
-    <h1 class="s">Услуги</h1>
-    <a asp-page="Create" class="btn">Добавить услугу</a>
+<div class="top">
+    <h1>Услуги</h1>
+    <a class="btn" asp-page="Create">Новая услуга</a>
 </div>
 
-<div class="card" style="overflow:hidden">
-    <table style="width:100%;border-collapse:collapse;font-size:15px">
-        <thead style="background:#F5F3F7;text-align:left">
-            <tr>
-                <th style="padding:12px 20px">Название</th>
-                <th style="padding:12px 20px">Длительность</th>
-                <th style="padding:12px 20px">Цена</th>
-                <th style="padding:12px 20px">Статус</th>
-                <th style="padding:12px 20px; text-align:right">Действие</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Services)
-            {
-                <tr style="border-top:1px solid #E6E0EF">
-                    <td style="padding:12px 20px; font-weight:700">@item.Name</td>
-                    <td style="padding:12px 20px">@item.Duration мин</td>
-                    <td style="padding:12px 20px">@item.Price.Rub()</td>
-                    <td style="padding:12px 20px">
-                        <span class="t @(item.IsActive ? "g" : "r")">
-                            @(item.IsActive ? "Активна" : "Неактивна")
-                        </span>
-                    </td>
-                    <td style="padding:12px 20px; text-align:right">
-                        <div style="display:flex; gap:8px; justify-content:flex-end">
-                            <a asp-page="./Edit" asp-route-id="@item.Id" class="btn2">Изменить</a>
-                            <a asp-page="./Delete" asp-route-id="@item.Id" class="btn2 gray">Удалить</a>
-                        </div>
-                    </td>
-                </tr>
-            }
-            @if (!Model.Services.Any())
-            {
-                <tr>
-                    <td colspan="5" style="padding:40px; text-align:center; color:#6A6277">Услуг пока нет.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<p class="muted" style="margin:0">Услуги и цены из этого списка показываются на публичной странице. Выключатель скрывает услугу с сайта.</p>
+
+<div class="card tbl">
+    <div>
+        <div class="r h" style="grid-template-columns:1.6fr 140px 120px 130px 110px"><span>Название</span><span>Длительность</span><span>Цена</span><span>На сайте</span><span></span></div>
+        @foreach (var item in Model.Services)
+        {
+            <div class="r" style="grid-template-columns:1.6fr 140px 120px 130px 110px">
+                <b>@item.Name</b>
+                <span>@item.Duration.Minutes()</span>
+                <span>@item.Price.Rub()</span>
+                <span>
+                    <form method="post" asp-page-handler="Toggle" asp-route-id="@item.Id" style="margin:0">
+                        <button type="submit" class="tog@(item.IsVisible ? "" : " off")" style="border:0;padding:0;cursor:pointer" aria-label="На сайте"></button>
+                    </form>
+                </span>
+                <span><a asp-page="Edit" asp-route-id="@item.Id">Изменить</a></span>
+            </div>
+        }
+        @if (!Model.Services.Any())
+        {
+            <div class="r muted" style="grid-template-columns:1fr">Услуг пока нет</div>
+        }
+    </div>
 </div>

@@ -8,15 +8,15 @@ namespace MasterBooking.Web.Pages.Account
     public class LoginModel : PageModel
     {
         [BindProperty]
-        public InputModel Input { get; set; } = default!;
+        public InputModel Input { get; set; } = new();
 
         public class InputModel
         {
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "Укажите email")]
+            [EmailAddress(ErrorMessage = "Введите email в формате name@example.com")]
             public string Email { get; set; } = string.Empty;
 
-            [Required]
+            [Required(ErrorMessage = "Укажите пароль")]
             [DataType(DataType.Password)]
             public string Password { get; set; } = string.Empty;
         }
@@ -45,7 +45,7 @@ namespace MasterBooking.Web.Pages.Account
                 return Page();
             }
 
-            ModelState.AddModelError(string.Empty, "Неверный вход");
+            ModelState.AddModelError(string.Empty, "Неверный email или пароль");
             return Page();
         }
     }

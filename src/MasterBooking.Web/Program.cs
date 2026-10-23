@@ -1,4 +1,6 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using MasterBooking.Infrastructure.Data;
 using MasterBooking.Domain.Interfaces;
@@ -36,6 +38,15 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
+
+var ru = new CultureInfo("ru-RU");
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(ru),
+    SupportedCultures = new List<CultureInfo> { ru },
+    SupportedUICultures = new List<CultureInfo> { ru }
+});
+
 app.UseRouting();
 
 app.UseAuthentication();
@@ -55,7 +66,11 @@ using (var scope = app.Services.CreateScope())
             await context.Database.MigrateAsync();
         }
 
-        await SeedData.SeedAsync(services);
+
+        if (app.Environment.IsDevelopment())
+        {
+            await SeedData.SeedAsync(services);
+        }
     }
     catch (Exception ex)
     {

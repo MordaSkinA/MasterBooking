@@ -19,25 +19,25 @@ namespace MasterBooking.Web.Pages.Admin.Services
         }
 
         [BindProperty]
-        public InputModel Input { get; set; } = default!;
+        public InputModel Input { get; set; } = new();
 
         public class InputModel
         {
             [Required]
-            [StringLength(100)]
             public int Id { get; set; }
 
-            [Required]
-            [StringLength(100)]
+            [Required(ErrorMessage = "Укажите название")]
+            [StringLength(100, ErrorMessage = "Не длиннее 100 символов")]
             public string Name { get; set; } = string.Empty;
 
-            [Range(0, double.MaxValue, ErrorMessage = "Цена должна быть положительной")]
+            [Range(0, double.MaxValue, ErrorMessage = "Цена не может быть отрицательной")]
             public decimal Price { get; set; }
 
             [Range(1, int.MaxValue, ErrorMessage = "Длительность должна быть больше 0")]
             public int Duration { get; set; }
 
-            public bool IsActive { get; set; }
+
+            public bool IsVisible { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
@@ -54,7 +54,7 @@ namespace MasterBooking.Web.Pages.Admin.Services
                 Name = service.Name,
                 Price = service.Price,
                 Duration = service.Duration,
-                IsActive = service.IsActive
+                IsVisible = service.IsVisible
             };
 
             return Page();
@@ -76,7 +76,7 @@ namespace MasterBooking.Web.Pages.Admin.Services
             service.Name = Input.Name;
             service.Price = Input.Price;
             service.Duration = Input.Duration;
-            service.IsActive = Input.IsActive;
+            service.IsVisible = Input.IsVisible;
 
             _context.Update(service);
             await _context.SaveChangesAsync();

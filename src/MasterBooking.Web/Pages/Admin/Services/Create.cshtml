@@ -1,48 +1,19 @@
 @page
 @model MasterBooking.Web.Pages.Admin.Services.CreateModel
 @{
+    ViewData["Title"] = "Новая услуга";
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Добавить услугу";
 }
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">Новая услуга</h5>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="mb-3">
-                        <label asp-for="Input.Name" class="form-label small text-muted">Название</label>
-                        <input asp-for="Input.Name" class="form-control" />
-                        <span asp-validation-for="Input.Name" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Input.Price" class="form-label small text-muted">Цена</label>
-                        <input asp-for="Input.Price" class="form-control" />
-                        <span asp-validation-for="Input.Price" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Input.Duration" class="form-label small text-muted">Длительность (мин)</label>
-                        <input asp-for="Input.Duration" class="form-control" />
-                        <span asp-validation-for="Input.Duration" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3 form-check">
-                        <input asp-for="Input.IsActive" class="form-check-input" />
-                        <label asp-for="Input.IsActive" class="form-check-label">Активна</label>
-                    </div>
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
-                        <a asp-page="Index" class="btn btn-outline-secondary">Отмена</a>
-                    </div>
-                </form>
-            </div>
-        </div>
+<div class="top"><h1>Новая услуга</h1></div>
+
+<form method="post" class="card form" style="max-width:640px">
+    <div asp-validation-summary="ModelOnly" style="color:#7A2E12;font-weight:600;font-size:14px"></div>
+    <label class="f">Название<input type="text" asp-for="Input.Name"><span asp-validation-for="Input.Name" style="color:#7A2E12;font-size:14px"></span></label>
+    <div class="cols">
+        <label class="f">Цена, ₽<input type="text" inputmode="decimal" asp-for="Input.Price"><span asp-validation-for="Input.Price" style="color:#7A2E12;font-size:14px"></span></label>
+        <label class="f">Длительность, мин<input type="text" inputmode="numeric" asp-for="Input.Duration"><span asp-validation-for="Input.Duration" style="color:#7A2E12;font-size:14px"></span></label>
     </div>
-</div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+    <label style="display:flex;gap:10px;align-items:center;font-weight:600"><input type="checkbox" asp-for="Input.IsVisible" style="width:20px;height:20px">На сайте</label>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit">Сохранить</button><a class="btn2 gray" asp-page="Index">Отмена</a></div>
+</form>

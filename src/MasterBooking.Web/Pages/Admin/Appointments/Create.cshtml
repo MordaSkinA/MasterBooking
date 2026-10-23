@@ -1,61 +1,31 @@
 @page
 @model MasterBooking.Web.Pages.Admin.Appointments.CreateModel
 @{
+    ViewData["Title"] = "Новая запись";
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Создать запись";
 }
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">Новая запись</h5>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="mb-3">
-                        <label asp-for="Input.ClientId" class="form-label small text-muted">Клиент</label>
-                        <select asp-for="Input.ClientId" class="form-select" asp-items="Model.Clients">
-                            <option value="">-- Выберите клиента --</option>
-                        </select>
-                        <span asp-validation-for="Input.ClientId" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Input.ServiceId" class="form-label small text-muted">Услуга</label>
-                        <select asp-for="Input.ServiceId" class="form-select" asp-items="Model.Services">
-                            <option value="">-- Выберите услугу --</option>
-                        </select>
-                        <span asp-validation-for="Input.ServiceId" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Input.StartDateTime" class="form-label small text-muted">Дата и время начала</label>
-                        <input asp-for="Input.StartDateTime" class="form-control" type="datetime-local" />
-                        <span asp-validation-for="Input.StartDateTime" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Input.FinalPrice" class="form-label small text-muted">Цена</label>
-                        <input asp-for="Input.FinalPrice" class="form-control" />
-                        <span asp-validation-for="Input.FinalPrice" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Input.Status" class="form-label small text-muted">Статус</label>
-                        <select asp-for="Input.Status" class="form-select">
-                            <option value="Planned">Запланировано</option>
-                            <option value="Done">Выполнено</option>
-                            <option value="Cancelled">Отменено</option>
-                        </select>
-                        <span asp-validation-for="Input.Status" class="text-danger"></span>
-                    </div>
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-primary">Создать запись</button>
-                        <a asp-page="./Index" class="btn btn-outline-secondary">Отмена</a>
-                    </div>
-                </form>
-            </div>
+<div class="top"><h1>Новая запись</h1></div>
+
+<form method="post" class="card form" style="max-width:640px">
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div style="background:#F6DDD3;color:#7A2E12;border-radius:10px;padding:12px 14px;font-weight:600;font-size:14px">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct())
+            {
+                <div>@error</div>
+            }
         </div>
+    }
+    <label class="f">Клиент<select asp-for="Input.ClientId" asp-items="Model.Clients"><option value="">Выберите клиента</option></select></label>
+    <label class="f">Услуга<select asp-for="Input.ServiceId" asp-items="Model.Services"><option value="">Выберите услугу</option></select></label>
+    <div class="cols">
+        <label class="f">Дата<input type="date" asp-for="Input.Date"></label>
+        <label class="f">Время<input type="time" asp-for="Input.Time"></label>
     </div>
-</div>
+    <label class="f">Заметка<textarea asp-for="Input.Notes"></textarea></label>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit">Сохранить запись</button><a class="btn2 gray" href="/Admin">Отмена</a></div>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

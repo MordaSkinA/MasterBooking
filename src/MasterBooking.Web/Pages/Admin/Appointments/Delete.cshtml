@@ -1,44 +1,17 @@
 @page
 @model MasterBooking.Web.Pages.Admin.Appointments.DeleteModel
 @{
-    Layout = "_AdminLayout";
     ViewData["Title"] = "Удалить запись";
+    Layout = "_AdminLayout";
 }
 
-<div class="card border-0 shadow-sm border-start border-danger border-4">
-    <div class="card-body p-4">
-        <h3 class="fw-bold text-danger">Вы уверены, что хотите удалить эту запись?</h3>
-        <p class="text-muted">Это действие нельзя будет отменить.</p>
+<div class="top"><h1>Удалить запись</h1></div>
 
-        <hr>
-
-        <div class="row mb-3">
-            <div class="col-sm-4 text-muted">Клиент</div>
-            <div class="col-sm-8 fw-semibold">@Model.Appointment.Client?.Name</div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-sm-4 text-muted">Услуга</div>
-            <div class="col-sm-8 fw-semibold">@Model.Appointment.Service?.Name</div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-sm-4 text-muted">Дата и время</div>
-            <div class="col-sm-8 fw-semibold">@Model.Appointment.StartDateTime.ToString("dd.MM.yyyy HH:mm")</div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-sm-4 text-muted">Статус</div>
-            <div class="col-sm-8 fw-semibold">@Model.Appointment.Status</div>
-        </div>
-        <div class="row mb-4">
-            <div class="col-sm-4 text-muted">Цена</div>
-            <div class="col-sm-8 fw-semibold">@Model.Appointment.FinalPrice.Rub()</div>
-        </div>
-
-        <form method="post">
-            <input type="hidden" asp-for="Appointment.Id" />
-            <button type="submit" class="btn btn-danger">
-                <i class="bi bi-trash me-1"></i> Подтвердить удаление
-            </button>
-            <a asp-page="./Index" class="btn btn-outline-secondary ms-2">Отмена</a>
-        </form>
-    </div>
-</div>
+<form method="post" class="card form" style="max-width:640px">
+    <input type="hidden" asp-for="Appointment.Id" />
+    <div style="font-weight:800;font-size:20px">@Model.Appointment.Client?.Name</div>
+    <div class="muted">@Model.Appointment.Service?.Name · @Model.Appointment.FinalPrice.Rub()</div>
+    <div class="muted">@Model.Appointment.StartDateTime.DayMonth() · @AppointmentStatus.Text(Model.Appointment.Status)</div>
+    <p class="muted" style="margin:0">Это действие нельзя будет отменить.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit" style="background:#7A2E12">Подтвердить удаление</button><a class="btn2 gray" href="/Admin">Отмена</a></div>
+</form>

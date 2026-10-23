@@ -18,7 +18,7 @@ namespace MasterBooking.Web.Pages.Admin.Clients
         }
 
         [BindProperty]
-        public InputModel Input { get; set; } = default!;
+        public InputModel Input { get; set; } = new();
 
         public class InputModel
         {
@@ -28,6 +28,8 @@ namespace MasterBooking.Web.Pages.Admin.Clients
 
             [StringLength(50)]
             public string? PhoneNumber { get; set; }
+
+            public string? Notes { get; set; }
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -40,7 +42,8 @@ namespace MasterBooking.Web.Pages.Admin.Clients
             var client = new Client
             {
                 Name = Input.Name,
-                PhoneNumber = Input.PhoneNumber
+                PhoneNumber = Input.PhoneNumber ?? string.Empty,
+                Notes = Input.Notes ?? string.Empty
             };
 
             _context.Clients.Add(client);

@@ -5,10 +5,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MasterBooking.Infrastructure.Migrations
 {
-    /// <inheritdoc />
+
     public partial class AddDisplayNameAndUserId : Migration
     {
-        /// <inheritdoc />
+
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
@@ -115,7 +115,7 @@ namespace MasterBooking.Infrastructure.Migrations
                 defaultValue: "");
         }
 
-        /// <inheritdoc />
+
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
